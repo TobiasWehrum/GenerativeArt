@@ -1,0 +1,10 @@
+Downloaded from http://blog.dragonlab.de/2015/03/generative-art-week-1
+
+Instructions:
+- ShardSphere: Left-click to refresh.
+- ShardCircle: Left-click to refresh.
+- TriangleChain: Left-click to refresh. Space to show UI.
+- CubeSphere: Left-click to refresh.
+- Fireflies: Left-click to spawn a sphere and to deactivate auto-spawn-mode. Right-click to refresh.
+- CircleTrails: Left-click to refresh. Right-click to change mode. +/- keys to speed up/slow down.
+- Blobs: Left-click to refresh.
