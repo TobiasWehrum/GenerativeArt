@@ -1,3 +1,14 @@
+/*
+Copyright (c) 2015 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
+Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
+This notice shall be included in all copies or substantial portions of the Software.
+
+Controls:
+- Left-click to refresh.
+- Right-click to pause/resume.
+- "m" to change blending mode (Lightweaver [default] or SilkWeaver)
+*/
+
 float radiusMin = 10;
 float radiusMax = 30;
 float speedMin = 0.2;
