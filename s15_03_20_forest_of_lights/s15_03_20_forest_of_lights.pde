@@ -242,7 +242,7 @@ void drawLampion(float x, float y, float z, float distanceScale)
   float saturationVaration = 10;
   float brightnessVariation = 10;
   float hue = (hueBase + random(-hueVariation, hueVariation)) % 255;
-  float saturation = 255 + random(-saturationVaration, saturationVaration);
+  float saturation = 255 + random(-saturationVaration, 0);
   float brightness = (100 + random(-brightnessVariation, brightnessVariation)) * sqrt(z);
   
   color cs = color(hue, saturation, brightness, 150);
@@ -289,7 +289,7 @@ void gradientLine(float x1, float y1, float x2, float y2, color a, color b) {
   float tStep = 1.0/dist(x1, y1, x2, y2);
   for (float t = 0.0; t < 1.0; t += tStep) {
     fill(lerpColor(a, b, pow(t, 0.1)));
-    ellipse(x1+t*deltaX,  y1+t*deltaY, 3, 3);
+    ellipse(x1+t*deltaX, y1+t*deltaY, 3, 3);
   }
 }
 
