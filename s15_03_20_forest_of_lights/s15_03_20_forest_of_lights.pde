@@ -10,23 +10,27 @@ Controls:
 float hueBase = 0;
 
 float scale = 1;
+float scaleWidth = 1;
 int seed = 0;
 
 void scaledSize(int originalWidth, int originalHeight, int desiredWidth, int desiredHeight, String mode)
 {
   size(desiredWidth, desiredHeight, mode);
-  scale = min((float)desiredWidth / originalWidth, (float)desiredHeight / originalHeight);
+  scale = (float)desiredHeight / originalHeight;
+  scaleWidth = (float)desiredWidth / originalWidth;
 }
-
+/*
 void scaledSize(int originalWidth, int originalHeight, int desiredWidth, int desiredHeight)
 {
   size(desiredWidth, desiredHeight);
   scale = min((float)desiredWidth / originalWidth, (float)desiredHeight / originalHeight);
 }
+*/
 
 void setup()
 {
-  scaledSize(1280, 720, 1280, 720, P2D);
+  scaledSize(1000, 720, displayWidth, displayHeight, P2D);
+  scale *= 0.5;
   colorMode(HSB, 255);
   smooth();
  
@@ -58,7 +62,7 @@ void redraw()
   
   int fireflyCount = (int) random(1, 3);
   
-  int treeCount = (int)random(20, 100);
+  int treeCount = (int)(random(10, 200) * scaleWidth);
   for (int i = 1; i <= treeCount; i++)
   {
     float z = pow((float)i / treeCount, 4);
