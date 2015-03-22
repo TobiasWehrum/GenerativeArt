@@ -31,8 +31,9 @@ void scaledSize(int originalWidth, int originalHeight, int desiredWidth, int des
 
 void setup()
 {
-  side = 500;
+  //side = 500;
   //side = 1080;
+  side = min(displayWidth, displayHeight);
   scaledSize(500, 500, side, side);
   //smooth();
   

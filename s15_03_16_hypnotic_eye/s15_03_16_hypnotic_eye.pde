@@ -4,7 +4,7 @@ Distributed under the MIT License. (See accompanying file LICENSE or copy at htt
 This notice shall be included in all copies or substantial portions of the Software.
 
 Controls:
-- Left-click to refresh.
+- Left-click to restart.
 */
 
 int seed;
