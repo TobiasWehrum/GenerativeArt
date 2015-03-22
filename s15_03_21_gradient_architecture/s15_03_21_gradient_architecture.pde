@@ -5,6 +5,7 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
+- Right-click to refresh, but keep palette.
 */
 
 import java.util.Collections;
@@ -15,6 +16,8 @@ boolean wrap = false;
 int side;
 int raster;
 int sliceCount;
+
+ArrayList<Integer> colors;
 
 boolean paused = false;
 
@@ -45,7 +48,18 @@ void setup()
     loadPalettes();
   }
   
+  chooseColors();
   reset();
+}
+
+void chooseColors()
+{
+  int paletteIndex = (int)random(palettes.size());
+  currentPalette = palettes.get(paletteIndex);
+  println("Palette: " + currentPalette.name);
+  
+  colors = new ArrayList<Integer>(currentPalette.colors);
+  Collections.shuffle(colors);
 }
 
 void reset()
@@ -54,10 +68,6 @@ void reset()
 
   raster = 1;
   sliceCount = side / raster;
-  
-  int paletteIndex = (int)random(palettes.size());
-  currentPalette = palettes.get(paletteIndex);
-  println("Palette: " + currentPalette.name);
   
   frameCount = 0;
   
@@ -71,9 +81,6 @@ void reset()
   rotate(random(PI * 2));
   translate(-halfWidth, -halfHeight);
   */
-  
-  ArrayList<Integer> colors = new ArrayList<Integer>(currentPalette.colors);
-  Collections.shuffle(colors);
   
   color upLeft = colors.get(0);
   color upRight = colors.get(1);
@@ -110,15 +117,14 @@ void reset()
   int shiftCount = randomIntInclusive(0, 15);
   for (int i = 0; i < shiftCount; i++)
   {
-    //executeShift((int) random(4));
     executeShift(0, true);
   }
   
   int buildingCount = randomIntInclusive(5, 10);
   for (int i = 0; i < buildingCount; i++)
   {
-    //executeShift((int) random(4));
-    executeShift((int) random(4), false);
+    //executeShift((int) random(4), false);
+    executeShift(3, false);
   }
   updatePixels();
 }
@@ -132,8 +138,8 @@ Method:
 */
 void executeShift(int method, boolean horizontal)
 {
-  int shiftCount = randomIntInclusive(25 * scale, 100 * scale);
-  int shiftDistance = randomIntInclusive(15 * scale, 100 * scale);
+  int shiftCount = randomIntInclusive(25 * scale / raster, 100 * scale / raster);
+  int shiftDistance = randomIntInclusive(15 * scale / raster, 100 * scale / raster);
   int startRow = randomRow(shiftCount - 1);
   int direction = randomDirection();
   
@@ -281,11 +287,12 @@ void mouseClicked()
 {
   if (mouseButton == LEFT)
   {
+    chooseColors();
     reset();
   }
   else if (mouseButton == RIGHT)
   {
-    paused = !paused;
+    reset();
   }
 }
 
