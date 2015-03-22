@@ -13,8 +13,8 @@ int previousTime;
 
 void setup()
 {
-  size(500, 500, OPENGL);
-  //size(displayWidth, displayHeight, OPENGL);
+  //size(500, 500, OPENGL);
+  size(displayWidth, displayHeight, OPENGL);
   colorMode(HSB, 255);
   blendMode(ADD);
   
