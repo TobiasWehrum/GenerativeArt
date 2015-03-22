@@ -9,6 +9,7 @@ Controls:
 
 int seed;
 float time = 0;
+int previousTime;
 
 void setup()
 {
@@ -22,10 +23,16 @@ void setup()
   
   seed = (int)random(100000);
   noiseSeed(seed);
+  
+  previousTime = millis();
 }
 
 void draw()
 {
+  int currentTime = millis();
+  float elapsedTime = (currentTime - previousTime) / 1000.0;
+  previousTime = currentTime;
+  
   randomSeed(seed);
   
   translate(width / 2, height / 2);
@@ -44,7 +51,7 @@ void draw()
   
   float angleOffset = log(1 + frameCount * 0.0001) * 30;
   
-  time += 0.01 / angleOffset;
+  time += (elapsedTime * 0.6) / angleOffset;
   
   //float maxOffset = endLength * log(1 + frameCount * 0.001) * 0.05;
   
