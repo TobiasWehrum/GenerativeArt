@@ -6,6 +6,7 @@ I've decided that the best way to learn Generative Art is to do daily sketches -
 You can find screenshots, videos and executables for Windows at the weekly roundups at my blog:
  * http://blog.dragonlab.de/2015/03/generative-art-week-1
  * http://blog.dragonlab.de/2015/03/generative-art-week-2
+ * http://blog.dragonlab.de/2015/03/generative-art-week-3
 
 If you want to load the sketches yourself and be able to modify them, you will need [Processing](https://processing.org).
 
