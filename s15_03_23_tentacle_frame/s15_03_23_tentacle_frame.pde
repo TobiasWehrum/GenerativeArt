@@ -19,11 +19,12 @@ void scaledSize(int originalWidth, int originalHeight, int desiredWidth, int des
 
 void setup()
 {
-  float side = 500;
+  int side = 500;
   //float side = min(displayWidth, displayHeight);
   scaledSize(500, 500, side, side);
   smooth();
   colorMode(HSB, 255);
+  reset();
 }
 
 void reset()
