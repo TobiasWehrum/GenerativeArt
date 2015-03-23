@@ -81,6 +81,8 @@ void execute()
   }
   */
   
+  float startHue = random(0, 255);
+  float tentacleWidth = 50;//random(5, 95);
   float radius = dist(0, 0, width/2, height/2);
   int count = 200;
   for (int i = 1; i <= count; i++)
@@ -88,11 +90,11 @@ void execute()
     float angle = random(0, PI * 2);
     float x = width/2 + cos(angle) * radius;
     float y = height/2 + sin(angle) * radius;
-    drawTentacle(x, y, angle - PI, 50, (float)i / count);
+    drawTentacle(x, y, angle - PI, tentacleWidth, (float)i / count, startHue);
   }
 }
 
-void drawTentacle(float x, float y, float angle, float fullWidth, float t)
+void drawTentacle(float x, float y, float angle, float fullWidth, float t, float startHue)
 {
     float fullAngle = random(-1, 1) * PI * 1.5;
     float fullLength = random(100, 500) * scale;
@@ -100,12 +102,16 @@ void drawTentacle(float x, float y, float angle, float fullWidth, float t)
     //float s = 0.0001;
     //float sx = x * s;
     //float sy = y * s;
-    float sa = angle * 0.01; 
-    float startHue = lerp(0, 255, (noise(sa, 0) * 10) % 1);
-    float endHue = lerp(0, 255, (noise(sa, 10) * 10) % 1);
+    float sa = angle * 0.1;
+    startHue += lerp(-30, 30, noise(sa, 0));
+    float endHue = startHue + lerp(-30, 30, noise(sa, 10));
+    
+    startHue = min(255, max(0, startHue));
+    endHue = min(255, max(0, endHue));
+    
     color strokeColor = color(255, 50 * pow(t, 4));
     color startColor = color(startHue, 255, 255 * pow(t, 4));
-    color endColor = color(endHue, random(50, 255), random(0, 255) * pow(t, 4));
+    color endColor = color(endHue, lerp(50, 255, noise(0)), lerp(0, 255, noise(10)) * pow(t, 4));
     
     drawTentacle(x, y, angle, fullWidth, fullAngle, fullLength, startColor, endColor, strokeColor);
 }
