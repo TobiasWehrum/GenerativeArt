@@ -41,7 +41,8 @@ void reset(boolean chooseColor)
     //float endHue = startHue + 50 * random(-1, 1);
     float endHue = random(0, 255);
     startColor = color(startHue, 255, 255);
-    endColor = color(endHue, random(50, 255), random(50, 255));
+    endColor = color(endHue, random(50, 255), random(0, 255));
+   // endColor = color(endHue, random(50, 255), random(0, 150));
   }
   
   execute();
@@ -131,8 +132,8 @@ void drawTentacle(float x, float y, float angle, float fullWidth, float fullAngl
   //stroke(120);
   //fill(120);
   
-  float stepPerLength = 10;
-  int stepCount = max((int)(fullLength / stepPerLength), 7);
+  float stepPerLength = 10 * scale;
+  int stepCount = max((int)(fullLength / stepPerLength), 10);
   
   float deltaAngle = fullAngle / stepCount;
   float deltaLength = fullLength / stepCount;
