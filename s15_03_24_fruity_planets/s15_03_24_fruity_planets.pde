@@ -13,11 +13,12 @@ ArrayList<PImage> city;
 ArrayList<PImage> fruits;
 ArrayList<PImage> misc;
 ArrayList<PImage> trees;
+ArrayList<PImage> flying;
 
 void setup()
 {
-  //size(1000, 1000);
-  size(displayWidth, displayHeight);
+  size(1000, 1000);
+  //size(displayWidth, displayHeight);
   colorMode(HSB, 255);
   
   backgrounds = loadImages("backgrounds");
@@ -26,6 +27,7 @@ void setup()
   fruits = loadImages("fruits");
   misc = loadImages("misc");
   trees = loadImages("trees");
+  flying = loadImages("flying");
   
   refresh();
 }
@@ -54,22 +56,35 @@ void drawImage()
 {
   pushMatrix();
   translate(width / 2, height / 2);
-  float radius = min(width, height) / 4;
+  float radius = min(width, height);
+  boolean hasFlying = random(1) > 0.5;
+  if (hasFlying)
+  {
+    radius /= 7;
+  }
+  else
+  {
+    radius /= 4;
+  }
+  
   float objectRadiusA = radius * 0.9;
   float objectRadiusB = radius * 0.7;
   //tint(0, 0, 150);
   drawRandomImage(fruits, 0, 0, random(0, TWO_PI), 0.5, 0.5, radius*2);
   
-  drawImages(city, 3, 10, objectRadiusA, objectRadiusB, 0, TWO_PI, radius * 0.8, radius * 1.4, 150);
-  drawImages(trees, 3, 8, objectRadiusA, objectRadiusB, 0, TWO_PI, radius * 0.8, radius * 1.2, 200);
-  drawImages(misc, 0, 1, objectRadiusA, objectRadiusB, 0, TWO_PI, radius * 0.6, radius * 0.8, 150);
-  drawImages(animals, 4, 7, objectRadiusA * 0.7, objectRadiusB, 0, TWO_PI, radius * 0.4, radius * 0.6, 255);
+  drawImages(city, 3, 10, objectRadiusA, objectRadiusB, 0, TWO_PI, radius * 0.8, radius * 1.4, 150, false);
+  drawImages(trees, 3, 8, objectRadiusA, objectRadiusB, 0, TWO_PI, radius * 0.8, radius * 1.2, 200, false);
+  drawImages(misc, 0, 1, objectRadiusA, objectRadiusB, 0, TWO_PI, radius * 0.6, radius * 0.8, 150, false);
+  drawImages(animals, 4, 7, objectRadiusA * 0.7, objectRadiusB, 0, TWO_PI, radius * 0.4, radius * 0.6, 255, false);
+  
+  if (hasFlying)
+    drawImages(flying, 4, 7, objectRadiusB * 3.5, objectRadiusB * 4.5, 0, TWO_PI, radius * 0.4, radius * 0.6, 255, true);
   
   popMatrix();
 }
 
 void drawImages(ArrayList<PImage> images, int minCount, int maxCount, float minRadius, float maxRadius,
-                float minAngle, float maxAngle, float minHeight, float maxHeight, float brightness)
+                float minAngle, float maxAngle, float minHeight, float maxHeight, float brightness, boolean addRandomAngle)
 {
   //tint(0, 0, brightness);
   int count = (int)random(minCount, maxCount + 1);
@@ -77,6 +92,10 @@ void drawImages(ArrayList<PImage> images, int minCount, int maxCount, float minR
   {
     float angle = random(minAngle, maxAngle);
     float lookAngle = angle;
+    if (addRandomAngle)
+    {
+      lookAngle = random(0, TWO_PI);
+    }
     float distance = random(minRadius, maxRadius);
     float x = cos(angle) * distance;
     float y = sin(angle) * distance;
