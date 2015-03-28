@@ -6,7 +6,8 @@ color strokeColor;
 
 void setup()
 {
-  size(500, 500, OPENGL);
+  //size(500, 500, OPENGL);
+  size(displayHeight, displayHeight, OPENGL);
   blendMode(ADD);
   colorMode(HSB, 255);
   

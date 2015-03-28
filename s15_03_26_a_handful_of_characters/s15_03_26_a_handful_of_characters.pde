@@ -33,7 +33,7 @@ void scaledSize(int originalWidth, int originalHeight, int desiredWidth, int des
 
 void setup()
 {
-  int side = 500;
+  int side = min(displayWidth, displayHeight);
   scaledSize(500, 500, side, side);
   colorMode(HSB, 255);
   smooth();

@@ -17,8 +17,8 @@ ArrayList<PImage> flying;
 
 void setup()
 {
-  size(1000, 1000);
-  //size(displayWidth, displayHeight);
+  //size(1000, 1000);
+  size(displayWidth, displayHeight);
   colorMode(HSB, 255);
   
   backgrounds = loadImages("backgrounds");
