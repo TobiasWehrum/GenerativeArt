@@ -29,7 +29,7 @@ void setup()
 
 void reset()
 {
-  seed = (int) random(100000);
+  seed = (int) random(100000) + frameCount;
   noiseSeed(seed);
   execute();
 }

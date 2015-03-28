@@ -32,7 +32,7 @@ void setup()
 
 void reset(boolean chooseColor)
 {
-  seed = (int) random(100000);
+  seed = (int) random(100000) + frameCount;
   noiseSeed(seed);
   
   if (chooseColor)
