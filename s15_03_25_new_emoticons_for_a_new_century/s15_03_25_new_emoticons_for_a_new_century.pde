@@ -80,17 +80,24 @@ void setup()
   addChars(charsMouthRotated, "!$&()/0123456789?BCDEFGIJKLNPRSTZ[\\]abcdefghijklnpqrstuyz{|}");
   addChars(charsMouthAny, "#%@OQx");
   
-  addChars(charsMouthUnrotated, "AHMUVWXY_movwx~");
-  addChars(charsMouthRotated, "!$&()/0123456789?BCDEFGIJKLNPRSTZ[\\]abcdefghijklnpqrstuyz{|}");
-  addChars(charsMouthAny, "#%@OQx");
-  
-  addChars(charsSideUnrotated, "");
-  addChars(charsSideRotated, "");
+  //addChars(charsSideUnrotated, "");
+  //addChars(charsSideRotated, "");
   addChars(charsSideAny, "#%@OQ\"'*+,-.<>=^´`x");
   
   addChars(charsTopUnrotated, "AHMUVWXY_movwx~");
   addChars(charsTopRotated, "!$&()/0123456789?BCDEFGIJKLNPRSTZ[\\]abcdefghijklnpqrstuyz{|}");
-  addChars(charsTopAny, "");
+  //addChars(charsTopAny, "");
+  
+  boolean useSpecialCharacters = true;
+  if (useSpecialCharacters)
+  {
+    addChars(charsNoseUnrotated, "ムへエಠರΘөΦ");
+    
+    addChars(charsEyesSingle, "ಠರΘөΦ");
+    
+    addChars(charsMouthUnrotated, "Дへωエ");
+    addChars(charsMouthRotated, "」へ");
+  }
   
   RG.init(this);
   
@@ -113,6 +120,11 @@ void setup()
 void refresh()
 {
   drawImage(false, true);
+  /*
+  translate(0, 100);
+  RShape group = RG.getText("", font, size, LEFT);
+  group.draw();
+  */
 }
 
 void debugDraw()
