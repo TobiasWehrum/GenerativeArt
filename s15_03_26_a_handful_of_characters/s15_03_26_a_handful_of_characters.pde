@@ -5,7 +5,7 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
-- Right-click to switch between modes (mirror, circular)
+- Right-click to switch between modes (mirror, circular).
 - Mouse wheel or +/- to change font.
 */
 
