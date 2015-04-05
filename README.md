@@ -7,7 +7,7 @@ You can find screenshots, videos and executables for Windows at the weekly round
  * http://blog.dragonlab.de/2015/03/generative-art-week-1
  * http://blog.dragonlab.de/2015/03/generative-art-week-2
  * http://blog.dragonlab.de/2015/03/generative-art-week-3
- * http://blog.dragonlab.de/2015/03/generative-art-week-4
+ * http://blog.dragonlab.de/2015/04/generative-art-week-4
 
 If you want to load the sketches yourself and be able to modify them, you will need [Processing](https://processing.org).
 
