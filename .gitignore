@@ -213,3 +213,10 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#Unity3D
+/s031_what_has_science_done/Library
+/s031_what_has_science_done/*.csproj
+/s031_what_has_science_done/*.sln
+/s031_what_has_science_done/*.DotSettings
+/s031_what_has_science_done/Temp
