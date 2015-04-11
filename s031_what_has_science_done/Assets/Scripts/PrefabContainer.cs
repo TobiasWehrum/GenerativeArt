@@ -5,6 +5,8 @@ using System.Collections;
 
 public class PrefabContainer : SingletonMonoBehaviour<PrefabContainer>
 {
+    [SerializeField] private Part[] debugOverride;
+    [SerializeField] private int debugOverrideMultiplicator = 1;
     [SerializeField] private Part[] allParts;
 
     private Dictionary<PartType, List<Part>> partsByType;
@@ -12,11 +14,21 @@ public class PrefabContainer : SingletonMonoBehaviour<PrefabContainer>
     private void Awake()
     {
         partsByType = new Dictionary<PartType, List<Part>>();
-        foreach (var part in allParts)
+        AddToPartsByType(allParts);
+
+        for (int i = 0; i < debugOverrideMultiplicator; i++)
+        {
+            AddToPartsByType(debugOverride);
+        }
+    }
+
+    private void AddToPartsByType(Part[] parts)
+    {
+        foreach (var part in parts)
         {
             if (!partsByType.ContainsKey(part.Type))
                 partsByType[part.Type] = new List<Part>();
-            
+
             partsByType[part.Type].Add(part);
         }
     }
