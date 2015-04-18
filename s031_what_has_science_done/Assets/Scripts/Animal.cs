@@ -5,6 +5,7 @@ using System.Linq;
 public class Animal : MonoBehaviourBase
 {
     [SerializeField] private PartType[] startingTypes;
+    [SerializeField] private float decoratorChance = 1f;
 
     private void Awake()
     {
@@ -32,5 +33,12 @@ public class Animal : MonoBehaviourBase
         transform.position = -completeBounds.center * scale;
 
         //completeBounds.center = transform.position;
+
+        if (Random.value < decoratorChance)
+        {
+            var prefabContainer = PrefabContainer.Instance;
+            var decorator = prefabContainer.GetRandomDecorator();
+            decorator.Decorate(this);
+        }
     }
 }

@@ -8,6 +8,7 @@ public class PrefabContainer : SingletonMonoBehaviour<PrefabContainer>
     [SerializeField] private Part[] debugOverride;
     [SerializeField] private int debugOverrideMultiplicator = 1;
     [SerializeField] private Part[] allParts;
+    [SerializeField] private Decorator[] allDecorators;
 
     private Dictionary<PartType, List<Part>> partsByType;
 
@@ -36,5 +37,10 @@ public class PrefabContainer : SingletonMonoBehaviour<PrefabContainer>
     public Part GetRandomPrefab(PartType type)
     {
         return partsByType[type].RandomElement();
+    }
+
+    public Decorator GetRandomDecorator()
+    {
+        return allDecorators.RandomElement();
     }
 }
