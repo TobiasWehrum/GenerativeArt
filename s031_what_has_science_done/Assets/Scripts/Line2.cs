@@ -9,7 +9,7 @@ public class Line2
     public Vector2 From { get; set; }
     public Vector2 To { get; set; }
 
-    public Vector3 Center
+    public Vector2 Center
     {
         get { return (From + To) / 2f; }
     }

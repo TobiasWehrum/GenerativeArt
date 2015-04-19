@@ -10,7 +10,10 @@ public class DecoratorTop : Decorator
 
     public override void Decorate(Animal animal)
     {
-        var areaBodyTops = animal.GetComponentsInChildren<AreaBodyTop>();
+        var areaBodyTops = animal.GetComponentsInChildren<AreaBodyTop>().ToList();
+        if (areaBodyTops.Count == 0)
+            return;
+
         foreach (var areaBodyTop in areaBodyTops)
         {
             foreach (var line in areaBodyTop.GetLines())
