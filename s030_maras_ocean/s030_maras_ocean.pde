@@ -92,7 +92,7 @@ void step()
 {
   float distance = 15 * scale;
   
-  float positionNoise = 0;
+  float positionNoise = 10;
   
   float noiseScale = 0.01 * (500.0/displayWidth) * random(0.5, 2.5);
   //float landHeight = random(0.55, 0.65);
