@@ -1,33 +1,19 @@
 ArrayList<Boid> boids = new ArrayList<Boid>();
 boolean pause;
-float hueOffset;
 
 void setup()
 {
-  size(768, 768, P2D);
+  size(768, 768, P3D);
   blendMode(ADD);
   colorMode(HSB, 360, 100, 100, 255);
-  reset(false);
-}
-
-void keyPressed()
-{
-  if ((key == 'a') || (key == 's'))
-  {
-    reset(key == 'a');
-    for (int i = 0; i < 1000; i++)
-    {
-      draw();
-    }
-    pause = true;
-  }
+  reset();
 }
 
 void mouseClicked()
 {
   if (mouseButton == LEFT)
   {
-    reset(false);
+    reset();
   }
   else if (mouseButton == CENTER)
   {
@@ -44,11 +30,8 @@ void mouseClicked()
   }
 }
 
-void reset(boolean keepHue)
+void reset()
 {
-  if (!keepHue)
-    hueOffset = random(0, 360);
-  
   boids.clear();
   for (int i = 0; i < 100; i++)
   {
@@ -57,8 +40,9 @@ void reset(boolean keepHue)
 
   background(0);
   //stroke(140, 1);
-  stroke(255, 5);
+  stroke(0, 0, 100, 255);
   //stroke(255);
+  noFill();
   
   pause = false;
 }
@@ -70,7 +54,7 @@ void draw()
   
   strokeWeight(2);
   //stroke(255, min((frameCount / 15), 20));
-  //background(0);
+  background(0);
   for (Boid boid : boids)
   {
     boid.update();
@@ -83,12 +67,10 @@ class Boid
   PVector velocity;
   PVector position;
   PVector previousPosition;
-  float maxSpeed = 4;
+  float maxSpeed = 2;
   float maxForce = 0.2;
   float angle;
   float index;
-  float hue;
-  ArrayList<Boid> closest = new ArrayList<Boid>();
   
   Boid(PVector position)
   {
@@ -104,44 +86,13 @@ class Boid
       delta.x = 1;
     }
     
-    //angle = atan2(delta.y, delta.x);
-    //velocity = PVector.mult(delta, maxSpeed);
-    
-    /*
-    while ((position.x > 0) && (position.x < width) &&
-           (position.y > 0) && (position.y < height))
-    {
-      position.x -= delta.x;
-      position.y -= delta.y;
-    }
-    */
-    
     previousPosition = new PVector(position.x, position.y);
     
     index = random(0, 1000000);
-    
-    //hue = (360 + angle * RAD_TO_DEG) % 360;
-    hue = (hueOffset + random(-1, 1) * 10 + 360) % 360;
   }
   
   void update()
   {
-    if (closest.size() == 0)
-    {
-      float neighborDistance = 100;
-      for (Boid boid : boids)
-      {
-        if (boid == this)
-          continue;
-        
-        float dist = PVector.dist(boid.position, position);
-        if (dist > neighborDistance)
-          continue;
-  
-        closest.add(boid);
-      }
-    }
-    
     PVector sep = separate();
     PVector ali = align();
     PVector coh = cohesion();
@@ -159,86 +110,62 @@ class Boid
     
     velocity.limit(maxSpeed);
     
-    position.add(velocity);
+    position.add(PVector.mult(velocity, 0.3));
+
+    if (position.x < 0)
+    {
+      position.x += width;
+      previousPosition.x += width;
+    }
+    else if (position.x >= width)
+    {
+      position.x -= width;
+      previousPosition.x -= width;
+    }
+      
+    if (position.y < 0)
+    {
+      position.y += height;
+      previousPosition.y += height;
+    }
+    else if (position.y >= height)
+    {
+      position.y -= height;
+      previousPosition.y -= height;
+    }
   }
   
   void draw()
   {
-    stroke(hue, 100, 100, 1);
+    stroke(0, 0, 100, 10);
     
-    float neighborDistance = 150;
-    float closenessSum = 0;
+    float neighborDistance = 50;
     int count = 0;
-    float averageHue = 0;
     for (Boid boid : boids)
     {
       if (boid == this)
         continue;
       
-      float dist = PVector.dist(boid.position, position);
-      if (dist > neighborDistance)
+      PVector delta = getWrappedDelta(position, boid.position);
+      float distance = delta.mag();
+      if (distance > neighborDistance)
         continue;
-
-      float closeness = 1 - (dist / neighborDistance);
-      closenessSum += closeness;
+      
+      if (PVector.dist(position, boid.position) <= neighborDistance)
+      {
+        line(position.x, position.y, boid.position.x, boid.position.y);
+      }
+      
       count++;
-      
-      //stroke(hue, 100, 100, closeness * 2);
-      //line(position.x, position.y, boid.position.x, boid.position.y);
-      
-      averageHue += boid.hue;
-      //hue = ((hue + deltaAngle(hue, boid.hue) * closeness * 0.01) + 360) % 360;
     }
     
-    if (count > 0)
-    {
-      averageHue = averageHue / count;
-      //hue = ((hue + deltaAngle(hue, averageHue) * 0.01) + 360) % 360;
-      //hue = lerpHue(hue, averageHue, 0.01);
-    }
-    
-    float distanceToCenter = PVector.dist(position, new PVector(width / 2, height / 2));
-    float smallerSide = min(width, height);
-    float distanceToCenterPercent = min(distanceToCenter / (smallerSide / 2), 1);
-    float closenessToCenterPercent = 1 - distanceToCenterPercent;
-    
-    strokeWeight(min(closenessSum / 2, 3));
-    stroke(hue, 100, 100, closenessSum * 3);
+    stroke(0, 0, 100, 255);
     
     line(previousPosition.x, previousPosition.y, position.x, position.y);
+    ellipse(position.x, position.y, count, count);
     previousPosition.x = position.x;
     previousPosition.y = position.y;
   }
-  
-  float lerpHue(float h1, float h2, float amt)
-  {
-     // figure out shortest direction around hue
-     float z = 360;
-     float dh12 = (h1>=h2) ? h1-h2 : z-h2+h1;
-     float dh21 = (h2>=h1) ? h2-h1 : z-h1+h2;
-     float h = (dh21 < dh12) ? h1 + dh21 * amt : h1 - dh12 * amt;
-     if (h < 0.0) h += z;
-     else if (h > z) h -= z;
-     return h;
-  }
-  
-  /*
-  float deltaAngle(float a, float b)
-  {
-    float delta = b - a;
-    while (delta < 0)
-    {
-      delta += 360;
-    }
-    
-    delta %= 360;
-    
-    if (delta > 180)
-      delta = 180 - delta;
-    
-    return delta;
-  }
-  */
   
   PVector wander()
   {
@@ -256,18 +183,22 @@ class Boid
     float neighborDistance = 50;
     PVector sum = new PVector();
     int count = 0;
-    for (Boid boid : closest)
+    for (Boid boid : boids)
     {
       if (boid == this)
         continue;
       
-      //if (PVector.dist(boid.position, position) > neighborDistance)
-      //  continue;
+      PVector delta = getWrappedDelta(position, boid.position);
+      float distance = delta.mag();
+      if (distance > neighborDistance)
+        continue;
       
-      PVector delta = PVector.sub(position, boid.position);
+      delta.mult(-1);
+      
+      //PVector delta = PVector.sub(position, boid.position);
       
       delta.normalize();
-      delta.div(delta.mag());
+      //delta.div(distance);
       sum.add(delta);
       count++;
     }
@@ -287,13 +218,14 @@ class Boid
     float neighborDistance = 150;
     PVector sum = new PVector();
     int count = 0;
-    for (Boid boid : closest)
+    for (Boid boid : boids)
     {
       if (boid == this)
         continue;
       
-      //if (PVector.dist(boid.position, position) > neighborDistance)
-      //  continue;
+      PVector delta = getWrappedDelta(position, boid.position);
+      if (delta.mag() > neighborDistance)
+        continue;
         
       sum.add(boid.velocity);
       count++;
@@ -314,15 +246,16 @@ class Boid
     float neighborDistance = 150;
     PVector sum = new PVector();
     int count = 0;
-    for (Boid boid : closest)
+    for (Boid boid : boids)
     {
       if (boid == this)
         continue;
-      
-      //if (PVector.dist(boid.position, position) > neighborDistance)
-      //  continue;
 
-      sum.add(boid.position);
+      PVector delta = getWrappedDelta(position, boid.position);
+      if (delta.mag() > neighborDistance)
+        continue;
+
+      sum.add(PVector.add(position, delta));
       count++;
     }
     
@@ -337,4 +270,24 @@ class Boid
     steer.limit(maxForce);
     return steer;
   }
+}
+
+PVector getWrappedDelta(PVector from, PVector to)
+{
+  float dx = to.x - from.x;
+  float dy = to.y - from.y;
+  if (dx > width / 2)
+  {
+    dx = width - dx;
+  }
+  if (dy > height / 2)
+  {
+    dy = height - dy;
+  }
+  return new PVector(dx, dy);
+}
+
+PVector getWrappedPosition(PVector point, PVector reference)
+{
+  return PVector.add(reference, getWrappedDelta(reference, point));
 }
