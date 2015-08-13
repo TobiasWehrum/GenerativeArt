@@ -202,6 +202,20 @@ class Boid
     float distanceToCenterPercent = min(distanceToCenter / (smallerSide / 2), 1);
     float closenessToCenterPercent = 1 - distanceToCenterPercent;
     
+    /*
+    for (int i = 0; i < 6; i++)
+    {
+      float offsetPercent = random(0, 1);
+      float offsetDistance = offsetPercent * 6;
+      float offsetAngle = random(0, PI * 2);
+      PVector offset = new PVector(cos(angle) * offsetDistance, sin(angle) * offsetAngle);
+      //strokeWeight(min(closenessSum / 2, 3));
+      strokeWeight(1);
+      stroke(hue, 100, 100, closenessSum * 3);
+      point(position.x + offset.x, position.y + offset.y);
+    }
+    */
+
     strokeWeight(min(closenessSum / 2, 3));
     stroke(hue, 100, 100, closenessSum * 3);
     
