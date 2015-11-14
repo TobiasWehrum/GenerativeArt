@@ -34,7 +34,8 @@ void scaledSize(int originalWidth, int originalHeight, int desiredWidth, int des
 void setup()
 {
   int side = min(displayWidth, displayHeight);
-  scaledSize(500, 500, side, side);
+  //scaledSize(500, 500, side, side);
+  scaledSize(500, 500, 500, 500);
   colorMode(HSB, 255);
   smooth();
   
@@ -182,9 +183,10 @@ void drawLetterCircle(float distance, int instanceCount, float angleOffset)
   
   int size = (int)(random(50, 120) * scale);
   
+  float fullRotation = PI * 2;
   for (int i = 0; i < instanceCount; i++)
   {
-    float a = baseAngle + i * angleOffset;
+    float a = baseAngle + i * (fullRotation / instanceCount);
     float x = cos(a) * distance;
     float y = sin(a) * distance;
     drawCharacter(c, x, y, 0.5, 0.5, rotation + a, 0, 0, true, mirrorX, mirrorY, size);
