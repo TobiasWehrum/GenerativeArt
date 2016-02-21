@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2015 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
+Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
+This notice shall be included in all copies or substantial portions of the Software.
+
+Controls:
+- Left-click to refresh.
+- Middle-click to pause and take 1000 steps.
+- Right-click to pause/unpause.
+- 1/2/3 switches between velocity/mixed/position modes.
+*/
+
 ArrayList<SandGrain> sandGrains = new ArrayList<SandGrain>();
 ArrayList<Attractor> attractors = new ArrayList<Attractor>();
 boolean pause;

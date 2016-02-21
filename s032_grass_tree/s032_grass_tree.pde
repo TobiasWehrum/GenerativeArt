@@ -1,3 +1,13 @@
+/*
+Copyright (c) 2015 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
+Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
+This notice shall be included in all copies or substantial portions of the Software.
+
+Controls:
+- Left-click to refresh.
+- Right-click to instantly finish growing.
+*/
+
 ArrayList<Branch> branchList = new ArrayList<Branch>();
 ArrayList<Branch> newBranchList = new ArrayList<Branch>();
 

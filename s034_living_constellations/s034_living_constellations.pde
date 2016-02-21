@@ -1,3 +1,14 @@
+/*
+Copyright (c) 2015 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
+Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
+This notice shall be included in all copies or substantial portions of the Software.
+
+Controls:
+- Left-click to refresh.
+- Middle-click to pause and take 1000 steps.
+- Right-click to pause/unpause.
+*/
+
 ArrayList<Boid> boids = new ArrayList<Boid>();
 boolean pause;
 
