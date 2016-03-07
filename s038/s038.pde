@@ -12,10 +12,15 @@ Controls:
 
 Color schemes:
 - "Hymn For My Soul" by faded jeans: http://www.colourlovers.com/palette/81885/Hymn_For_My_Soul
-- "Influenza" by Miaka: http://www.colourlovers.com/palette/301154/Influenza
 - "s e x ' n . r o l l " by tvr: http://www.colourlovers.com/palette/401946/s_e_x_n_._r_o_l_l
-- "A Dream in Color" by madmod001: http://www.colourlovers.com/palette/871636/A_Dream_in_Color
 - "fresh cut day" by electrikmonk: http://www.colourlovers.com/palette/46688/fresh_cut_day
+- "(◕ ” ◕)" by sugar!: http://www.colourlovers.com/palette/848743
+- "vivacious" by plch: http://www.colourlovers.com/palette/557539/vivacious
+- "Sweet Lolly" by nekoyo: http://www.colourlovers.com/palette/56122/Sweet_Lolly
+- "Pop Is Everything" by jen_savage: http://www.colourlovers.com/palette/7315/Pop_Is_Everything
+- "it's raining love" by tvr: http://www.colourlovers.com/palette/845564/its_raining_love
+- "A Dream in Color" by madmod001: http://www.colourlovers.com/palette/871636/A_Dream_in_Color
+- "Influenza" by Miaka: http://www.colourlovers.com/palette/301154/Influenza
 - "Ocean Five" by DESIGNJUNKEE: http://www.colourlovers.com/palette/1473/Ocean_Five
 */
 
@@ -29,6 +34,8 @@ int boidCountMin = 15;
 int boidCountMax = boidCountMin + 35;
 int starCountMin = 5;
 int starCountMax = starCountMin + 15;
+
+boolean ignoreWidth = true;
 
 ArrayList<Palette> palettes;
 Palette currentPalette;
@@ -170,14 +177,18 @@ void loadPalettes()
   {
     Palette palette = new Palette();
     XML[] xcolors = child.getChild("colors").getChildren("hex");
-    String[] widths = child.getChild("colorWidths").getContent().split(",");
+    String[] widths = null;
+    if (!ignoreWidth)
+      widths = child.getChild("colorWidths").getContent().split(",");
     String title = child.getChild("title").getContent();
     palette.name = title;//.substring(10, title.length()-10-3);
     int i = 0;
     for(XML xcolor : xcolors)
     {
       color c = unhex("FF" + xcolor.getContent());
-      float w = Float.parseFloat(widths[i]);
+      float w = 1;
+      if (widths != null)
+        w = Float.parseFloat(widths[i]);
       i++;
       palette.addColor(c, w);
     }
@@ -208,6 +219,7 @@ class Boid
   float maxSpeed;
   float maxSpeedMultiplier = 1;
   float jumpWidth;
+  boolean jumpScaleToDistance;
   ArrayList<PVector> positions = new ArrayList<PVector>();
   
   Boid(PVector position)
@@ -241,7 +253,10 @@ class Boid
     index = random(0, 1000000);
     
     jumpWidth = random(1, 100);
+    jumpScaleToDistance = true;
     //jumpWidth = 10;
+    //jumpWidth = PI + 0.01;
+    //jumpScaleToDistance = false;
     
     //if (random(1) > 0.5) jumpWidth *= -1;
     positions.add(position);
@@ -287,7 +302,7 @@ class Boid
     //previousPosition = getAngle(closestStar.position, closestStar.position, previousPosition, -15, true);
     if (mode == 0)
     {
-      position = getAngle(closestStar.position, closestStar.position, position, jumpWidth, true);
+      position = getAngle(closestStar.position, closestStar.position, position, jumpWidth, jumpScaleToDistance);
     }
     else
     {
