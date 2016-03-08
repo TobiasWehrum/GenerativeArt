@@ -24,7 +24,7 @@ Color schemes:
 - "Ocean Five" by DESIGNJUNKEE: http://www.colourlovers.com/palette/1473/Ocean_Five
 */
 
-String paletteFileName = "selected";
+String paletteFileName = "selected2";
 ArrayList<Boid> boids = new ArrayList<Boid>();
 ArrayList<Star> stars = new ArrayList<Star>();
 boolean pause;
