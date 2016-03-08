@@ -5,7 +5,7 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
-- Middle-click to pause and take 1000 steps.
+- Middle-click to take 1000 steps and pause.
 - Right-click to pause/unpause.
 */
 
