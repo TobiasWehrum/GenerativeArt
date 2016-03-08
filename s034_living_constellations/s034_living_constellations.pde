@@ -5,7 +5,6 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
-- Middle-click to pause and take 1000 steps.
 - Right-click to pause/unpause.
 */
 
@@ -25,15 +24,6 @@ void mouseClicked()
   if (mouseButton == LEFT)
   {
     reset();
-  }
-  else if (mouseButton == CENTER)
-  {
-    pause = false;
-    for (int i = 0; i < 1000; i++)
-    {
-      draw();
-    }
-    pause = true;
   }
   else if (mouseButton == RIGHT)
   {
