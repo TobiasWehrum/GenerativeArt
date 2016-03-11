@@ -186,22 +186,32 @@ void drawStar(float x, float y, float maxRadius)
   x = (int)random(0, width);
   y = (int)random(0, height);
   */
+  ArrayList<Integer> colors = currentPalette.colors;
+  ArrayList<Integer> chosenColors = new ArrayList<Integer>();
+  chosenColors.add(colors.get((int)random(0, currentPalette.colors.size())));
+  chosenColors.add(colors.get((int)random(0, currentPalette.colors.size())));
+  if (random(1) > 0.5)
+    chosenColors = colors;
   for (int i = 0; i < count; i++)
   {
-    stroke(currentPalette.colors.get((int)random(0, currentPalette.colors.size())), random(50 * 5, 100 * 20) / maxRadius);
+    stroke(chosenColors.get((int)random(0, chosenColors.size())), random(50 * 5, 100 * 20) / maxRadius);
     //angleFrom = random(-PI/2, PI/2);
     
     //float angleTo = angleFrom + random(-PI/2, PI/2);
     float angleTo = angleFrom + random(PI/4, PI);
     float radius = random(maxRadius / 3, maxRadius);
     int stepCount = (int)(abs(angleTo-angleFrom)*random(50, 200));
-    drawCircle(x, y, angleFrom, angleTo, radius, radius, stepCount);
+    float innerRadius = 0;//random(0, 1);
+    if (random(1) > 0.5)
+      innerRadius = random(0, 1);
+    drawCircle(x, y, angleFrom, angleTo, radius, radius, stepCount, innerRadius);
     
     angleFrom = angleTo;
   }
 }
 
-void drawCircle(float x, float y, float angleFrom, float angleTo, float radiusFrom, float radiusTo, int stepCount)
+void drawCircle(float x, float y, float angleFrom, float angleTo, float radiusFrom, float radiusTo, int stepCount,
+                float innerRadius)
 {
   float angleDelta = (angleTo-angleFrom) / (stepCount-1);
   float radiusDelta = (radiusTo-radiusFrom) / (stepCount-1);
@@ -214,8 +224,17 @@ void drawCircle(float x, float y, float angleFrom, float angleTo, float radiusFr
     float dx = cos(angle) * radius;
     float dy = sin(angle) * radius;
     
-    line(x-dx, y-dy, x+dx, y+dy);
-    //line(x, y, x+dx, y+dy);
+    if (innerRadius == 0)
+    {
+      line(x-dx, y-dy, x+dx, y+dy);
+    }
+    else
+    {
+      float dx2 = dx*innerRadius;
+      float dy2 = dy*innerRadius;
+      line(x-dx, y-dy, x-dx2, y-dy2);
+      line(x+dx, y+dy, x+dx2, y+dy2);
+    }
   }
 }
 
