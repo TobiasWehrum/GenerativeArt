@@ -5,20 +5,6 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
-- Middle-click to pause and take 200 steps.
-- Right-click to pause/unpause.
-- A to refresh and finish 200 steps with same color scheme.
-- S to refresh and finish 200 steps with changed color scheme.
-
-Color schemes:
-- "(◕ ” ◕)" by sugar!: http://www.colourlovers.com/palette/848743
-- "vivacious" by plch: http://www.colourlovers.com/palette/557539/vivacious
-- "Sweet Lolly" by nekoyo: http://www.colourlovers.com/palette/56122/Sweet_Lolly
-- "Pop Is Everything" by jen_savage: http://www.colourlovers.com/palette/7315/Pop_Is_Everything
-- "it's raining love" by tvr: http://www.colourlovers.com/palette/845564/its_raining_love
-- "A Dream in Color" by madmod001: http://www.colourlovers.com/palette/871636/A_Dream_in_Color
-- "Influenza" by Miaka: http://www.colourlovers.com/palette/301154/Influenza
-- "Ocean Five" by DESIGNJUNKEE: http://www.colourlovers.com/palette/1473/Ocean_Five
 */
 
 String paletteFileName = "top100";
@@ -52,40 +38,11 @@ void setup()
   reset(false);
 }
 
-void keyPressed()
-{
-  if ((key == 'a') || (key == 's'))
-  {
-    reset(key == 'a');
-    drawLoop();
-    pause = true;
-  }
-  if (key == ' ')
-  {
-    System.out.println(currentPalette.name);
-  }
-}
-
-void drawLoop()
-{
-  for (int i = 0; i < steps; i++)
-  {
-    draw();
-  }
-}
-
 void mouseClicked()
 {
   if (mouseButton == LEFT)
   {
     reset(false);
-  }
-  else if (mouseButton == CENTER)
-  {
-  }
-  else if (mouseButton == RIGHT)
-  {
-    pause = !pause;
   }
 }
 

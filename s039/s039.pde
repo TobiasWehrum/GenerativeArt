@@ -5,10 +5,7 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
-- Middle-click to pause and take 200 steps.
-- Right-click to pause/unpause.
-- A to refresh and finish 200 steps with same color scheme.
-- S to refresh and finish 200 steps with changed color scheme.
+- Right-click to refresh, but keep color scheme.
 
 Color schemes:
 - "(◕ ” ◕)" by sugar!: http://www.colourlovers.com/palette/848743
@@ -31,6 +28,8 @@ boolean ignoreWidth = true;
 ArrayList<Palette> palettes = new ArrayList<Palette>();
 Palette currentPalette;
 
+ArrayList<Integer> chosenColors;
+
 void setup()
 {
   int originalWidth = 768;
@@ -49,7 +48,7 @@ void setup()
 
   reset(false);
 }
-
+/*
 void keyPressed()
 {
   if ((key == 'a') || (key == 's'))
@@ -71,7 +70,7 @@ void drawLoop()
     draw();
   }
 }
-
+*/
 void mouseClicked()
 {
   if (mouseButton == LEFT)
@@ -83,7 +82,8 @@ void mouseClicked()
   }
   else if (mouseButton == RIGHT)
   {
-    pause = !pause;
+    //pause = !pause;
+    reset(true);
   }
 }
 
@@ -93,6 +93,12 @@ void reset(boolean keepHue)
   {
     int paletteIndex = (int)random(palettes.size());
     currentPalette = palettes.get(paletteIndex);
+    ArrayList<Integer> colors = currentPalette.colors;
+    chosenColors = new ArrayList<Integer>();
+    chosenColors.add(colors.get((int)random(0, currentPalette.colors.size())));
+    chosenColors.add(colors.get((int)random(0, currentPalette.colors.size())));
+    if (random(1) > 0.5)
+      chosenColors = colors;
   }
   
   background(0);
@@ -121,9 +127,6 @@ void draw()
 
 void drawStar(float radiusScale)
 {
-  int paletteIndex = (int)random(palettes.size());
-  currentPalette = palettes.get(paletteIndex);
-  
   strokeWeight(1);
   int count = (int)random(5, 15);
   float angleFrom = random(-PI*2, PI*2);
@@ -131,12 +134,6 @@ void drawStar(float radiusScale)
   int y = height/2;
   //x = (int)random(0, width);
   //y = (int)random(0, height);
-  ArrayList<Integer> colors = currentPalette.colors;
-  ArrayList<Integer> chosenColors = new ArrayList<Integer>();
-  chosenColors.add(colors.get((int)random(0, currentPalette.colors.size())));
-  chosenColors.add(colors.get((int)random(0, currentPalette.colors.size())));
-  if (random(1) > 0.5)
-    chosenColors = colors;
   for (int i = 0; i < count; i++)
   {
     stroke(chosenColors.get((int)random(0, chosenColors.size())), random(50, 200));
