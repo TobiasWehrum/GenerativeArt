@@ -5,10 +5,6 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
-- Middle-click to draw 200 steps and pause.
-- Right-click to pause/resume.
-- A to reset and draw 200 steps with the current color scheme (and then pause).
-- B to reset and draw 200 steps with another color scheme (and then pause).
 
 Color schemes:
 - "(◕ ” ◕)" by sugar!: http://www.colourlovers.com/palette/848743
@@ -24,18 +20,42 @@ Color schemes:
 import java.util.*;
 
 String paletteFileName = "selected2";
+boolean alternateColorSchemes = false;
 
 int fieldSize = 48;
 int fieldCount;
 int border = 1;
 
+int drawLength = 1400;
+int markStepMin = 15;
+int markStepMax = 60;
+
+int targetDistanceMin = 10;
+int targetDistanceMax = 30;
+int minTargetStep = 5;
+int maxTargetStep = Integer.MAX_VALUE;
+float minTargetDistance = 0;
+float maxTargetDistance = 60;
+float minTotalLength = 100;
+int eatenCount = 30;
+int minEntityCount = 400;
+int maxEntityCount = 800;
+
+int visitorBorder = 2;
+float visitorDiameterMin = 24;
+float visitorDiameterMax = 36;
+int minVisitorCount = 10;
+int maxVisitorCount = 20;
+
 Tile[][] tiles;
 int tileGradientCounter;
 
+ArrayList<Visitor> visitors = new ArrayList<Visitor>();
 ArrayList<Entity> entities = new ArrayList<Entity>();
 
-color visitorColor = color(0, 0, 255);
-color entityColor = color(255, 0, 0);
+color visitorColor = color(0, 0, 255, 100);
+color visitorEatenColor = color(255, 0, 0, 100);
+color entityColor = color(255, 0, 0, 50);
 
 float scale = 1;
 int steps = 2000;
@@ -76,43 +96,15 @@ void setup()
   reset(false);
 }
 
-void keyPressed()
-{
-  if ((key == 'a') || (key == 's'))
-  {
-    reset(key == 'a');
-    drawLoop();
-    pause = true;
-  }
-  if (key == ' ')
-  {
-    System.out.println(currentPalette.name);
-  }
-}
-
-void drawLoop()
-{
-  for (int i = 0; i < steps; i++)
-  {
-    draw();
-  }
-}
-
 void mouseClicked()
 {
   if (mouseButton == LEFT)
   {
-    reset(false);
-  }
-  else if (mouseButton == CENTER)
-  {
-    pause = false;
-    drawLoop();
-    pause = true;
+    reset(true);
   }
   else if (mouseButton == RIGHT)
   {
-    pause = !pause;
+    reset(false);
   }
 }
 
@@ -128,6 +120,13 @@ void reset(boolean keepHue)
     chosenColors.add(colors.get((int)random(0, currentPalette.colors.size())));
     if (random(1) > 0.5)
       chosenColors = colors;
+    
+    if (alternateColorSchemes)
+    {
+      visitorColor = setAlphaPercent(chosenColors.get(0), 0.5);
+      visitorEatenColor = setAlphaPercent(chosenColors.get(1), 0.5);
+      entityColor = setAlphaPercent(chosenColors.get(1), 0.25);
+    }
   }
   
   noiseSeed((int)random(0, 100000000));
@@ -188,11 +187,74 @@ void reset(boolean keepHue)
     }
   }
   
+  float visitorRandom = 5;
+  ArrayList<PVector> possibleVisitorPositions = new ArrayList<PVector>();
+  for (int x = visitorBorder; x < fieldCount-visitorBorder; x++)
+  {
+    for (int y = visitorBorder; y < fieldCount-visitorBorder; y++)
+    {
+      if(tiles[x][y].solid)
+        possibleVisitorPositions.add(new PVector((x+0.5) * fieldSize + random(-visitorRandom, visitorRandom),
+                                                 (y+0.5) * fieldSize + random(-visitorRandom, visitorRandom)));
+    }
+  }
+  
+  Collections.shuffle(possibleVisitorPositions);
+  
+  visitors.clear();
+  int visitorCount = (int)random(minVisitorCount, maxVisitorCount+1);
+  for (int i = 0; i < visitorCount; i++)
+  {
+    visitors.add(new Visitor(possibleVisitorPositions.get(i)));
+  }
+  
   entities.clear();
-  int entityCount = 100;
+  int entityCount = (int)random(minEntityCount, maxEntityCount+1);
   for (int i = 0; i < entityCount; i++)
   {
     entities.add(new Entity(startX, startY));
+  }
+  
+  steps();
+  finalDraw();
+}
+
+void steps()
+{
+  for (int i = 0; i < steps; i++)
+  {
+    for (Entity entity : entities)
+    {
+      entity.step();
+    }
+  }
+
+  for (Entity entity : entities)
+  {
+    entity.takeTargetStep();
+  }
+}
+
+void finalDraw()
+{
+  blendMode(BLEND);
+  
+  drawMap();
+  
+  blendMode(ADD);
+  
+  noStroke();
+  noFill();
+  
+  for (Entity entity : entities)
+  {
+    entity.draw();
+  }
+  
+  noFill();
+  for (Visitor visitor : visitors)
+  {
+    visitor.draw();
   }
 }
 
@@ -211,18 +273,23 @@ void draw()
   noFill();
   */
   
+  /*
   drawMap();
   
   for (Entity entity : entities)
   {
     entity.step();
   }
+  */
       
-  //pause = true;
+  pause = true;
 }
 
 void drawMap()
 {
+  float maxOffset = 5;
+  //float maxRotation = PI/2;
+  
   noStroke();
   for (int x = 0; x < fieldCount; x++)
   {
@@ -230,14 +297,36 @@ void drawMap()
     {
       if (isSolid(x, y))
       {
-        fill(5);
+        stroke(random(15, 25));
+        //fill(random(5, 10));
+        fill(random(0, 8));
       }
       else
       {
-        fill(0, 10);
+        //noStroke();
+        //fill(0);
+        continue;
         //fill(10 + (1-tiles[x][y].gradient/(float)tileGradientCounter)*245);
       }
-      rect(x * fieldSize, y * fieldSize, fieldSize, fieldSize);
+      pushMatrix();
+      //rotate(random(-maxRotation, maxRotation));
+      /*
+      rect(x * fieldSize + random(-maxOffset, maxOffset),
+           y * fieldSize + random(-maxOffset, maxOffset),
+           fieldSize + random(-maxOffset, maxOffset),
+           fieldSize + random(-maxOffset, maxOffset));
+      */
+      beginShape();
+      float x1 = x * fieldSize;
+      float y1 = y * fieldSize;
+      float x2 = x1 + fieldSize;
+      float y2 = y1 + fieldSize;
+      vertex(x1  + random(-maxOffset, maxOffset), y1 + random(-maxOffset, maxOffset));
+      vertex(x2  + random(-maxOffset, maxOffset), y1 + random(-maxOffset, maxOffset));
+      vertex(x2  + random(-maxOffset, maxOffset), y2 + random(-maxOffset, maxOffset));
+      vertex(x1  + random(-maxOffset, maxOffset), y2 + random(-maxOffset, maxOffset));
+      endShape(CLOSE);
+      popMatrix();
     }
   }
 }
@@ -322,7 +411,13 @@ class Entity
 {
   PVector position;
   PVector direction;
+  ArrayList<PVector> previousPositions = new ArrayList<PVector>();
   boolean dead;
+  int nextMarkerCountdown;
+  boolean hasEaten;
+  Visitor target = null;
+  float targetDistance = Float.MAX_VALUE;
+  float totalLength = 0;
   
   public Entity(int tileX, int tileY)
   {
@@ -335,10 +430,12 @@ class Entity
     PVector target = findHigherGround(from);
     if (target == null)
     {
+      //previousPositions.add(new PVector(position.x, position.y));
       direction = null;
       return;
     }
     
+    //previousPositions.add(new PVector(position.x, position.y));
     direction = PVector.sub(target, position);
     direction.normalize();
   }
@@ -347,6 +444,13 @@ class Entity
   {
     if (!isDead())
     {
+      nextMarkerCountdown--;
+      if (nextMarkerCountdown <= 0)
+      {
+        previousPositions.add(new PVector(position.x, position.y));
+        nextMarkerCountdown = (int)random(markStepMin, markStepMin);
+      }
+      
       Coordinates previous = currentCoordinates();
       position.add(direction);
       
@@ -371,11 +475,120 @@ class Entity
             direction = oldDir;
         }
       }
+
+      takeTargetStep();
     }
     
+    /*
     strokeWeight(1);
     stroke(entityColor);
     point(position.x, position.y);
+    */
+  }
+  
+  void findClosestTarget()
+  {
+    target = null;
+    targetDistance = Float.MAX_VALUE;
+    for (Visitor visitor : visitors)
+    {
+      float distance = PVector.dist(position, visitor.position);
+      if (distance < targetDistance)
+      {
+        target = visitor;
+        targetDistance = distance;
+      }
+    }
+  }
+  
+  void takeTargetStep()
+  {
+    if (isDead())
+      return;
+    
+    findClosestTarget();
+    
+    if (!target.available())
+      return;
+      
+    if ((targetDistance < minTargetDistance) || (targetDistance > maxTargetDistance))
+      return;
+    
+    PVector deltaToTarget = PVector.sub(target.position, position);
+    targetDistance = min(maxTargetStep, targetDistance - visitorDiameterMax/2)
+                        - random(targetDistanceMin, targetDistanceMax);
+    if (targetDistance < 0)
+      targetDistance = minTargetStep;
+      
+    deltaToTarget.normalize();
+    
+    position.x += deltaToTarget.x * targetDistance;
+    position.y += deltaToTarget.y * targetDistance;
+    
+    previousPositions.add(new PVector(position.x, position.y));
+    
+    calculateTotalLength();
+    if (totalLength >= minTotalLength)
+    {
+      hasEaten = true;
+      target.eat();
+    }
+    
+    direction = null;
+  }
+  
+  void calculateTotalLength()
+  {
+    totalLength = 0;
+    PVector previous = null;
+    for (PVector current : previousPositions)
+    {
+      if (previous != null)
+      {
+        totalLength += PVector.dist(current, previous);
+      }
+      previous = current;
+    }
+  }
+  
+  void draw()
+  {
+    if (!hasEaten)
+      return;
+    
+    if (direction != null)
+    {
+      //previousPositions.add(new PVector(position.x, position.y));
+      direction = null;
+    }
+    
+    calculateTotalLength();
+
+    if (totalLength < minTotalLength)
+      return;
+
+    noStroke();
+    noFill();
+
+    float startLength = max(totalLength - drawLength, 0);
+    float lengthRange = totalLength - startLength;
+    float previousLength = -startLength;
+    PVector previous = null;
+    for (PVector current : previousPositions)
+    {
+      if (previous != null)
+      {
+        float length = PVector.dist(current, previous);
+        if (previousLength >= 0)
+        {
+          float fromPercent = pow(previousLength/lengthRange, 4);
+          float toPercent = pow((previousLength+length)/lengthRange, 4);
+          gradientLine(previous.x, previous.y, current.x, current.y, entityColor, fromPercent, toPercent);
+        }
+        previousLength += length;
+      }
+      previous = current;
+    }
   }
   
   public Coordinates currentCoordinates()
@@ -389,6 +602,84 @@ class Entity
   }
 }
 
+public class Visitor
+{
+  PVector position;
+  int eatenCountLeft;
+  
+  public Visitor(PVector position)
+  {
+    this.position = position;
+    eatenCountLeft = eatenCount;
+  }
+  
+  public void eat()
+  {
+    eatenCountLeft--;
+  }
+  
+  public boolean available()
+  {
+    return eatenCountLeft > 0;
+  }
+  
+  public void draw()
+  {
+    float eatenPercent = 1 - (float)eatenCountLeft / eatenCount;
+    float offset = 3;
+    int visitorDiameter = (int)random(visitorDiameterMin, visitorDiameterMax+1);
+    //for (int i = 1; i <= visitorDiameter; i++)
+
+    strokeWeight(1);
+    for (int i = visitorDiameter; i >= 1; i--)
+    {
+      //float percent = 1-((float)i/visitorRadius);
+      float percent = random(0, 1);
+      float eatenStrength = lerp(eatenPercent, 0, percent);
+      //percent = max(eatenStrength, percent);
+      stroke(setAlphaPercent(lerpColor(visitorColor, visitorEatenColor, eatenStrength), percent));
+      //stroke(setAlphaPercent(visitorColor, percent));
+      ellipse(position.x + random(-offset, offset), position.y + random(-offset, offset), i, i);
+    }
+
+    /*
+    for (int i = (int)(visitorDiameter * eatenPercent); i >= 1; i--)
+    {
+      //float percent = 1-((float)i/visitorRadius);
+      float percent = random(0, 1);
+      //stroke(setAlphaPercent(lerpColor(visitorColor, visitorEatenColor, eatenPercent * pow(percent, 1)), percent));
+      stroke(setAlphaPercent(visitorEatenColor, percent));
+      ellipse(position.x + random(-offset, offset), position.y + random(-offset, offset), i, i);
+    }
+    */
+  }  
+}
+
+color setAlphaPercent(color original, float percent)
+{
+  if (int(alpha(original) * percent) == 0)
+    return color(0,0,0,0);
+    
+  return color(red(original), green(original), blue(original), alpha(original) * percent);
+}
+
+void gradientLine(float x1, float y1, float x2, float y2, color c, float alphaFromPercent, float alphaToPercent)
+{
+  float r = red(c);
+  float g = green(c);
+  float b = blue(c);
+  float a = alpha(c);
+  
+  float deltaX = x2-x1;
+  float deltaY = y2-y1;
+  float tStep = 1.0/dist(x1, y1, x2, y2);
+  for (float t = 0.0; t < 1.0; t += tStep) {
+    //fill(lerpColor(a, b, t));
+    fill(r, g, b, a * lerp(alphaFromPercent, alphaToPercent, t));
+    ellipse(x1+t*deltaX,  y1+t*deltaY, 2, 2);
+  }
+}
+ 
 PVector findHigherGround(Coordinates c)
 {
   Tile currentTile = tiles[c.x][c.y];
