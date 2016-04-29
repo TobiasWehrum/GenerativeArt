@@ -89,6 +89,7 @@ void reset()
   scaling = xml.getFloat("scaling", 3);
   String gradientFilename = xml.getString("gradient", "gradientHue240-480.png");
   boolean gradientReverse = xml.getString("gradientReverse", "false").equals("true");
+  scalingOn = !xml.getString("keepSize", "false").equals("true");
   
   player = minim.loadFile(song);
   
@@ -248,6 +249,8 @@ void drawCenterVisualizer()
   float positionRadius = height*0.3;
   if (scalingOn)
     positionRadius *= (1+totalAvg*0.01);
+  else
+    positionRadius *= 1.35;
 
   //rotAngle += totalAvg*0.0001;
   translate(width/2, height/2);

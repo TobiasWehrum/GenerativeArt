@@ -3,4 +3,5 @@
 	scaling="4"
 	gradient="gradientHueDouble.png"
 	gradientReverse="false"
+	keepSize="false"
 />
