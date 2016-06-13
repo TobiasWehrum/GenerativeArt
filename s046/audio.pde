@@ -9,7 +9,7 @@ void audioSetup()
 
 void audioLoad(String song)
 {
-  mod.doModLoad(song, true, 64);
+  mod.doModLoad(song, false, 64);
   mod.setSongloop(false);
 }
 

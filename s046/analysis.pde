@@ -4,7 +4,7 @@ static final int LOG_2_8287 = LogTable.log_2(8287);
 static final int LOG_2_8363 = LogTable.log_2(8363);
 static final int LOG_2_1712 = LogTable.log_2(1712);
 
-class SampleData
+class InstrumentData
 {
   int index;
   int counter;
@@ -13,7 +13,7 @@ class SampleData
   short[] sampleData;
   boolean looping;
   
-  public SampleData(int index, int counter, Sample sample)
+  public InstrumentData(int index, int counter, Sample sample)
   {
     this.index = index;
     this.counter = counter;
@@ -28,23 +28,70 @@ class ChannelInfo
 {
   int index;
   Channel channel;
-  SampleData currentSample;
-  int portamento;
+  InstrumentData currentInstrument;
+  InstrumentChannelInfo[] instrumentChannelInfos;
+  float endTime;
   
   public ChannelInfo(int index, Channel channel)
   {
     this.index = index;
     this.channel = channel;
+    
+    instrumentChannelInfos = new InstrumentChannelInfo[usedInstruments.size()];
+    for (int i = 0; i < usedInstruments.size(); i++)
+    {
+      instrumentChannelInfos[i] = new InstrumentChannelInfo(this, usedInstruments.get(i));
+    }
   }
   
-  public void setCurrentSample(SampleData sample)
+  public void setCurrentInstrument(InstrumentData instrument)
   {
-    currentSample = sample;
-    portamento = 0;
+    deactivateCurrentInstrument();
+    
+    currentInstrument = instrument;
+    
+    if (currentInstrument.looping)
+    {
+      endTime = -1;
+    }
+    else
+    {
+      endTime = player.play_position + currentInstrument.length;
+    }
+    
+    if (currentInstrument != null)
+    {
+      instrumentChannelInfos[currentInstrument.counter].active = true;
+    }
+  }
+  
+  public void deactivateCurrentInstrument()
+  {
+    if (currentInstrument != null)
+    {
+      instrumentChannelInfos[currentInstrument.counter].active = false;
+      currentInstrument = null;
+    }
+  }
+  
+  public void update()
+  {
+    /*
+    if ((currentInstrument != null) && isSilent())
+    {
+      deactivateCurrentInstrument();
+    }
+    */
+    
+    for (InstrumentChannelInfo info : instrumentChannelInfos)
+    {
+      info.update();
+    }
   }
   
   public boolean isSilent()
   {
+    //return (currentInstrument == null) || ((endTime != -1) && (player.play_position > endTime));
     try
     {
       return (boolean) fieldChannelSilent.get(channel);
@@ -93,6 +140,7 @@ class ChannelInfo
     float value = getCurrentStepLog();
     value -= 1000;
     value /= 500;
+    //value /= 1500;
     return value;
   }
   
@@ -105,10 +153,10 @@ class ChannelInfo
   }
 }
 
-SampleData[] samples;
+InstrumentData[] allInstruments;
 ChannelInfo[] channels;
 
-int usedInstrumentCount;
+ArrayList<InstrumentData> usedInstruments = new ArrayList<InstrumentData>();
 
 //Field fieldChannelStep;
 Field fieldChannelSilent;
@@ -121,29 +169,30 @@ IBXM ibxm;
 
 void prepareAnalysis()
 {
-  usedInstrumentCount = 0;
-  
   player = mod.player;
   module = player.module;
   ibxm = player.ibxm;
   Instrument[] instruments = module.instruments;
   
-  samples = new SampleData[instruments.length];
+  usedInstruments.clear();
+  
+  allInstruments = new InstrumentData[instruments.length];
   for (int i = 0; i < instruments.length; i++)
   {
     Instrument instrument = mod.oldsamples.get(i);
     Sample sample = instrument.samples[0];
     
-    samples[i] = new SampleData(i + 1, usedInstrumentCount, sample);
+    InstrumentData instrumentData = new InstrumentData(i + 1, usedInstruments.size(), sample);
+    allInstruments[i] = instrumentData;
     
     if (sample.sample_data_length > 0)
-      usedInstrumentCount++;
+      usedInstruments.add(instrumentData);
   }
 
   channels = new ChannelInfo[module.get_num_channels()];
   for (int i = 0; i < channels.length; i++)
   {
-    channels[i] = new ChannelInfo(i + 1, ibxm.channels[i]);
+    channels[i] = new ChannelInfo(i, ibxm.channels[i]);
   }
 
   try
@@ -180,23 +229,18 @@ public void grabNewdata(PortaMod b) {
   if (note.inst != 0)
   {
     //println("CURRENT PORTAMENTO: " + log(channel.portamento) / log(2));
-    SampleData sample = getInstrumentSampleData(note.inst);
-    channel.setCurrentSample(sample);
-  }
-  
-  if (note.effect == 1)
-  {
-    channel.portamento += note.effparam;
-  }
-  else if (note.effect == 2)
-  {
-    channel.portamento -= note.effparam;
+
+    InstrumentData instrument = getInstrumentInstrumentData(note.inst);
+    if (instrument.length == 0)
+      return;
+      
+    channel.setCurrentInstrument(instrument);
   }
 }
 
-public SampleData getInstrumentSampleData(int instrument)
+public InstrumentData getInstrumentInstrumentData(int instrument)
 {
-  return samples[instrument - 1];
+  return allInstruments[instrument - 1];
 }
 
 void debugDrawChannelPitch()
@@ -209,7 +253,10 @@ void debugDrawChannelPitch()
     if (channelInfo.isSilent())
       continue;
     
-    fill(getColor((float)channelInfo.currentSample.counter / (usedInstrumentCount-1)));
+    if (channelInfo.currentInstrument == null)
+      continue;
+      
+    fill(getColor((float)channelInfo.currentInstrument.counter / (usedInstruments.size()-1)));
     
     //print((int)stepLog + " | ");
     //print((int)(stepLog * 10)/10f + " | ");
@@ -225,7 +272,7 @@ void debugDrawChannelInstruments()
 {
   float blockHeight = 4;
   float rectWidth = (float)width / channels.length;
-  float rectHeight = (float)height / usedInstrumentCount;
+  float rectHeight = (float)height / usedInstruments.size();
   for (int i = 0; i < channels.length; i++)
   {
     ChannelInfo channelInfo = channels[i];
@@ -233,10 +280,13 @@ void debugDrawChannelInstruments()
     if (channelInfo.isSilent())
       continue;
     
-    fill(getColor((float)channelInfo.currentSample.counter / (usedInstrumentCount-1)));
+    if (channelInfo.currentInstrument == null)
+      continue;
+      
+    fill(getColor((float)channelInfo.currentInstrument.counter / (usedInstruments.size()-1)));
     
     float x = i * rectWidth;
-    float y = channelInfo.currentSample.counter * rectHeight;
+    float y = channelInfo.currentInstrument.counter * rectHeight;
     rect(x, y, rectWidth, rectHeight);
     
     fill(255);

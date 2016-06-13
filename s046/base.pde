@@ -58,6 +58,8 @@ void reset()
   prepare();
   
   loading = false;
+
+  audioContinue();
 }
 
 void keyPressed()

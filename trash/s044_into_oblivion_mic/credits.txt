@@ -1,7 +1,3 @@
-Song:
-- CHIPTUNE, phantasmagoria, red sector-theme and zapped-out by 4mat: https://modarchive.org/index.php?request=view_profile&query=83394
-- rivendell by radix: http://modarchive.org/index.php?request=view_by_moduleid&query=148474
-
 Color Schemes:
 - Hymn For My Soul by faded jeans: http://www.colourlovers.com/palette/81885/Hymn_For_My_Soul
 - s e x ' n . r o l l by tvr: http://www.colourlovers.com/palette/401946/s_e_x_n_._r_o_l_l
