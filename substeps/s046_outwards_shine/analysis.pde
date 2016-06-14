@@ -167,10 +167,6 @@ Player player;
 Module module;
 IBXM ibxm;
 
-float[] samples;
-float peak;
-float rms;
-
 void prepareAnalysis()
 {
   player = mod.player;
@@ -245,73 +241,6 @@ public void grabNewdata(PortaMod b) {
 public InstrumentData getInstrumentInstrumentData(int instrument)
 {
   return allInstruments[instrument - 1];
-}
-
-void processSamples()
-{
-  byte[] outputBuffer = player.output_buffer;
-  if (samples == null)
-    samples = new float[outputBuffer.length / 2];
-    
-  for(int i = 0, s = 0; i < outputBuffer.length;)
-  {
-    int sample = 0;
-    
-    sample |= outputBuffer[i++] << 8;   //  if the format is big endian)
-    sample |= outputBuffer[i++] & 0xFF; // (reverse these two lines
-    
-    // normalize to range of +/-1.0f
-    samples[s++] = sample / 32768f;
-  }
-                
-  //float lastPeak = peak;
-  
-  rms = 0f;
-  peak = 0f;
-  for(float sample : samples) {
-
-      float abs = Math.abs(sample);
-      if(abs > peak) {
-          peak = abs;
-      }
-
-      rms += sample * sample;
-  }
-
-  rms = (float) Math.sqrt(rms / samples.length);
-
-  /*
-  if (lastPeak > peak) {
-    peak = lastPeak * 0.875f;
-  }
-  */
-}
-
-void debugDrawPeakAndRms()
-{
-  background(0);
-  stroke(255, 0, 0);
-  noFill();
-  float r = peak * 500;
-  ellipse(width/2, height/2, r, r);
-  stroke(0, 255, 0);
-  r = rms * 1200;
-  ellipse(width/2, height/2, r, r);
-}
-
-void debugDrawSamples()
-{
-  stroke(255);
-  noFill();
-
-  float delta = (samples.length-1) / width;
-  float centerY = height/2;
-  beginShape();
-  for (int i = 0; i < samples.length; i++)
-  {
-    vertex(i * delta, centerY + samples[i] * height);
-  }
-  endShape();
 }
 
 void debugDrawChannelPitch()

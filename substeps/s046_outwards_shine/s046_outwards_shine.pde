@@ -6,14 +6,15 @@ int cellHeight;
 float extents;
 float visualRadius;
 float rotationAngle;
-float scale = 1;
+
+PGraphics mainGraphics;
+PImage mainGraphicsCopy;
 
 void setup()
 {
   //size(displayWidth, displayHeight);
   size(600, 600);
   //fullScreen();
-  noCursor();
 
   //colorMode(HSB, 360, 255, 255, 255);
   //blendMode(ADD);
@@ -24,12 +25,15 @@ void setup()
   extents = min(width, height);
   visualRadius = extents / 2;
 
-  frameRate(30);
+  frameRate(1130);
 }
 
 void prepare()
 {
   prepareAnalysis();
+
+  mainGraphics = createGraphics(width, height);
+  mainGraphicsCopy = new PImage(width, height);
 
   /*
   int extents = min(width, height);
@@ -46,9 +50,10 @@ void prepare()
     }
   }
   */
+
   rotationAngle = 0;
 
-  //background(50);
+  //mainGraphics.background(50);
 
   background(50);
   fill(0, 50);
@@ -57,23 +62,28 @@ void prepare()
     rect(0, 0, width, height);
 }
 
-float smoothedRms;
-
 void executeDraw()
 {
   rotationAngle += 0.03;
 
-  resetBackground();
-
-  processSamples();
-
-  smoothedRms *= 0.9;
-  smoothedRms = max(smoothedRms, rms);
-  scale = 1 + smoothedRms;
+  //resetBackground();
 
   for (ChannelInfo channel : channels)
     channel.update();
 
+  mainGraphics.beginDraw();
+  mainGraphics.background(0);
+  
+  float scale = 1.05;
+  float newWidth = width * scale;
+  float newHeight = height * scale;
+  mainGraphics.image(mainGraphicsCopy, width/2-newWidth/2, height/2-newHeight/2, newWidth, newHeight);
+  
+  mainGraphics.fill(0, 50);
+  mainGraphics.noStroke();
+  mainGraphics.rect(0, 0, width, height);
+  
+  //mainGraphics.background(0);
   for (ChannelInfo channel : channels)
   {
     for (InstrumentChannelInfo instrumentChannelInfo : channel.instrumentChannelInfos)
@@ -81,10 +91,12 @@ void executeDraw()
       instrumentChannelInfo.draw();
     }
   }
+  mainGraphics.endDraw();
   
-  //background(0);
-  //debugDrawPeakAndRms();
-  //debugDrawSamples();
+  image(mainGraphics, 0, 0);
+  
+  mainGraphicsCopy.copy(mainGraphics, 0, 0, width, height, 0, 0, width, height);
+
   //debugDrawChannelPitch();
   //debugDrawChannelInstruments();
 }
@@ -94,7 +106,7 @@ void resetBackground()
   fill(0, 50);
   noStroke();
   rect(0, 0, width, height);
-  //background(0);
+  background(0);
 }
 
 class InstrumentChannelInfo
@@ -136,9 +148,9 @@ class InstrumentChannelInfo
   void draw()
   {
     color c = getColor((float)instrument.counter / (usedInstruments.size()-1));
-    stroke(c, 255);
-    fill(c, 15);
-    strokeCap(NORMAL);
+    mainGraphics.stroke(c, 255);
+    mainGraphics.fill(c, 50);
+    mainGraphics.strokeCap(NORMAL);
     
     float angle = rotationAngle + ((float)channel.index/channels.length) * (PI*2);
     
@@ -155,14 +167,7 @@ class InstrumentChannelInfo
     {
       prevPosRotArr[j] = prevPosRotArr[j+1];
     }
-    
     prevPosRotArr[prevPosRotArr.length-1] = new PVector(x, y);
-    /*
-    if (value == 0)
-    {
-      prevPosRotArr[prevPosRotArr.length-1] = null;
-    }
-    */
     
     /*
     if (prevPosRotArr[0] != null)
@@ -187,15 +192,15 @@ class InstrumentChannelInfo
           {
             PVector shortDelta = new PVector(delta.x, delta.y);
             shortDelta.normalize();
-            shortDelta.mult(satelliteDistanceInner*scale);
-            beginShape();
-            vertex(center.x + shortDelta.x, center.y + shortDelta.y);
+            shortDelta.mult(satelliteDistanceInner);
+            mainGraphics.beginShape();
+            mainGraphics.vertex(center.x + shortDelta.x, center.y + shortDelta.y);
           }
           
-          float len = delta.mag();
-          delta.mult((len*scale)/len);
+          //float len = delta.mag();
+          //delta.mult((len+random(-1, 1))/len);
           
-          vertex(center.x + delta.x, center.y + delta.y);
+          mainGraphics.vertex(center.x + delta.x, center.y + delta.y);
           lastDrawn = from;
         }
         else if (lastDrawn != null)
@@ -205,8 +210,8 @@ class InstrumentChannelInfo
             delta.mult(-1);
             
           delta.normalize();
-          delta.mult(satelliteDistanceInner*scale);
-          vertex(center.x + delta.x, center.y + delta.y);
+          delta.mult(satelliteDistanceInner);
+          mainGraphics.vertex(center.x + delta.x, center.y + delta.y);
           endShape();
           lastDrawn = null;
         }
@@ -220,9 +225,9 @@ class InstrumentChannelInfo
       {
         PVector delta = PVector.sub(lastDrawn, center);
         delta.normalize();
-        delta.mult(satelliteDistanceInner*scale);
-        vertex(center.x + delta.x, center.y + delta.y);
-        endShape();
+        delta.mult(satelliteDistanceInner);
+        mainGraphics.vertex(center.x + delta.x, center.y + delta.y);
+        mainGraphics.endShape();
         lastDrawn = null;
       }
     }
