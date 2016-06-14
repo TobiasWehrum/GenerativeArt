@@ -94,6 +94,9 @@ class ChannelInfo
     //return (currentInstrument == null) || ((endTime != -1) && (player.play_position > endTime));
     try
     {
+      if ((player.play_position == 0) || (player.play_position >= player.song_duration))
+        return true;
+      
       return (boolean) fieldChannelSilent.get(channel);
     }
     catch (Exception e)
@@ -138,10 +141,20 @@ class ChannelInfo
   public float getCurrentStepLogMapped()
   {
     float value = getCurrentStepLog();
+    if (value < lowestPitchFound)
+      lowestPitchFound = value;
+      
+    if (value > highestPitchFound)
+      highestPitchFound = value;
+    
+    value = max(lowerPitch, min(upperPitch, value));
+    return map(value, lowerPitch, upperPitch, 0, 1);
+
+    /*
     value -= 1000;
     value /= 500;
-    //value /= 1500;
     return value;
+    */
   }
   
   public int getVolume()
@@ -171,8 +184,19 @@ float[] samples;
 float peak;
 float rms;
 
-void prepareAnalysis()
+float lowerPitch;
+float upperPitch;
+float lowestPitchFound;
+float highestPitchFound;
+
+void prepareAnalysis(XML xml)
 {
+  lowestPitchFound = Float.POSITIVE_INFINITY;
+  highestPitchFound = Float.NEGATIVE_INFINITY;
+  
+  lowerPitch = xml.getFloat("lowerPitch", 1000);
+  upperPitch = xml.getFloat("upperPitch", 1500);
+  
   player = mod.player;
   module = player.module;
   ibxm = player.ibxm;
@@ -285,6 +309,13 @@ void processSamples()
     peak = lastPeak * 0.875f;
   }
   */
+}
+
+void printInfo()
+{
+  println("Pitch: " + lowestPitchFound + " to " + highestPitchFound);
+  println("Seek position: " + floor(mod.getSeek() / 1000) + " / " + mod.songLength + ", " +
+        (floor((mod.getSeek()/1000f)/(mod.songLength)*100)) + "%");
 }
 
 void debugDrawPeakAndRms()

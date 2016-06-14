@@ -1,6 +1,9 @@
 <config
 	song="radix - rivendell.xm"
-	scaling="3"
+	scaling="1"
+	rotationSpeed="1"
+	lowerPitch="1000"
+	upperPitch="1500"
 	gradient="gradientHue240-480.png"
 	gradientReverse="false"
 />

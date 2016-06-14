@@ -5,11 +5,13 @@ float scale = 1;
 
 float smoothedRms;
 
+float rotationSpeed;
+
 void setup()
 {
   //size(displayWidth, displayHeight);
-  //size(600, 600);
-  fullScreen();
+  size(600, 600);
+  //fullScreen();
   noCursor();
 
   //colorMode(HSB, 360, 255, 255, 255);
@@ -24,9 +26,11 @@ void setup()
   frameRate(30);
 }
 
-void prepare()
+void prepare(XML xml)
 {
-  prepareAnalysis();
+  prepareAnalysis(xml);
+  
+  rotationSpeed = xml.getFloat("rotationSpeed", 1);
 
   /*
   int extents = min(width, height);
@@ -56,7 +60,7 @@ void prepare()
 
 void executeDraw()
 {
-  rotationAngle += 0.03;
+  rotationAngle += 0.03 * rotationSpeed;
 
   resetBackground();
 
@@ -64,7 +68,7 @@ void executeDraw()
 
   smoothedRms *= 0.9;
   smoothedRms = max(smoothedRms, rms);
-  scale = 1 + smoothedRms;
+  scale = (1 + smoothedRms) * scaling;
 
   for (ChannelInfo channel : channels)
     channel.update();

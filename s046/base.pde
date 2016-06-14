@@ -55,7 +55,7 @@ void reset()
     gradient[i] = gradientImage.get(gradientReverse ? (gradientImage.width - i - 1) : i, 0);
   }
 
-  prepare();
+  prepare(xml);
   
   loading = false;
 
@@ -88,6 +88,10 @@ void keyPressed()
       {
         audioPause();
       }
+    }
+    else if (key == 'i')
+    {
+      printInfo();
     }
   }
   
