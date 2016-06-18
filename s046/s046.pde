@@ -1,3 +1,5 @@
+int decorationCircleOffset = 10;
+
 float extents;
 float visualRadius;
 float rotationAngle;
@@ -11,7 +13,10 @@ int mode;
 float arcShineAlpha;
 float arcInnerAlpha;
 float backgroundClearAlpha;
+float backgroundCircleClearAlpha;
+float backgroundCircleClearRadius; 
 boolean decorationActive;
+boolean decorationFilled;
 float vibrationFactor;
 
 boolean newSong;
@@ -19,8 +24,8 @@ boolean newSong;
 void setup()
 {
   //size(displayWidth, displayHeight);
-  //size(600, 600);
-  fullScreen();
+  size(600, 600);
+  //fullScreen();
   noCursor();
 
   //colorMode(HSB, 360, 255, 255, 255);
@@ -31,6 +36,9 @@ void setup()
 
   extents = min(width, height);
   visualRadius = extents / 2 * 0.8;
+  
+  backgroundCircleClearRadius = visualRadius * 1.2;
+  //backgroundCircleClearRadius = (extents/4) * 1.9 + decorationCircleOffset * -1;
 
   frameRate(30);
 }
@@ -46,10 +54,12 @@ void prepare(XML xml)
   switch (mode)
   {
     default:
-      arcShineAlpha = 0;
+      arcShineAlpha = 5;
       arcInnerAlpha = 15;
-      backgroundClearAlpha = 50;
-      decorationActive = true;
+      backgroundClearAlpha = 10;
+      backgroundCircleClearAlpha = 50;
+      decorationActive = false;
+      decorationFilled = false;
       vibrationFactor = 1;
       break;
     
@@ -57,8 +67,20 @@ void prepare(XML xml)
       arcShineAlpha = 5;
       arcInnerAlpha = 15;
       backgroundClearAlpha = 10;
+      backgroundCircleClearAlpha = 0;
       decorationActive = false;
+      decorationFilled = false;
       vibrationFactor = 0;
+      break;
+
+    case 3:
+      arcShineAlpha = 0;
+      arcInnerAlpha = 15;
+      backgroundClearAlpha = 50;
+      backgroundCircleClearAlpha = 0;
+      decorationActive = true;
+      decorationFilled = true;
+      vibrationFactor = 1;
       break;
   }
 
@@ -128,10 +150,20 @@ void executeDraw()
 
 void resetBackground()
 {
-  fill(0, backgroundClearAlpha);
   noStroke();
-  rect(0, 0, width, height);
+  if (backgroundClearAlpha > 0)
+  {
+    fill(0, backgroundClearAlpha);
+    rect(0, 0, width, height);
+  }
+  
   //background(0);
+  
+  if (backgroundCircleClearAlpha > 0)
+  {
+    fill(0, backgroundCircleClearAlpha);
+    ellipse(width/2, height/2, backgroundCircleClearRadius * 2, backgroundCircleClearRadius * 2);
+  }
 }
 
 void drawDecoration()
@@ -149,16 +181,15 @@ void drawDecoration()
     rotate(angleDelta);
   }
   */
-  int offset = 10;
   int arcPointCount = 50;
   float ellipseExtents = (extents/2) * 1.9;
-  float ellipseExtentsInner = ellipseExtents + offset * 2;
+  float ellipseExtentsInner = ellipseExtents + decorationCircleOffset * 2;
   
   stroke(255, 50);
   strokeWeight(1);
   noFill();
   
-  float arcAngleOffset = (float)Math.asin(offset/ellipseExtentsInner)*2;
+  float arcAngleOffset = (float)Math.asin(decorationCircleOffset/ellipseExtentsInner)*2;
   float arcAngleOffsetPart = (PI/2-arcAngleOffset*2) / (arcPointCount - 1);
   
   for (int i = 0; i < 4; i++)
@@ -189,8 +220,8 @@ void drawDecoration()
     rotate(PI/2);
   }
   
-  ellipseExtentsInner += offset * 2;
-  arcAngleOffset = (float)Math.asin(offset*2/ellipseExtentsInner)*2;
+  ellipseExtentsInner += decorationCircleOffset * 2;
+  arcAngleOffset = (float)Math.asin(decorationCircleOffset*2/ellipseExtentsInner)*2;
   arcAngleOffsetPart = (PI/2-arcAngleOffset*2) / (arcPointCount - 1);
   
   for (int i = 0; i < 4; i++)
@@ -199,7 +230,14 @@ void drawDecoration()
     PVector arcTo = new PVector(arcFrom.y, arcFrom.x);
     
     noStroke();
-    fill(30);
+    if (decorationFilled)
+    {
+      fill(30);
+    }
+    else
+    {
+      noFill();
+    }
     
     beginShape();
     vertex(width+height, arcFrom.y);
@@ -222,7 +260,7 @@ void drawDecoration()
   
   ellipse(0, 0, ellipseExtents, ellipseExtents);
   
-  ellipseExtents -= offset * 2;
+  ellipseExtents -= decorationCircleOffset * 2;
   ellipse(0, 0, ellipseExtents, ellipseExtents);
 
   popMatrix();
