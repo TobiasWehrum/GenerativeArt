@@ -7,11 +7,20 @@ float smoothedRms;
 
 float rotationSpeed;
 
+int mode;
+float arcShineAlpha;
+float arcInnerAlpha;
+float backgroundClearAlpha;
+boolean decorationActive;
+float vibrationFactor;
+
+boolean newSong;
+
 void setup()
 {
   //size(displayWidth, displayHeight);
-  size(600, 600);
-  //fullScreen();
+  //size(600, 600);
+  fullScreen();
   noCursor();
 
   //colorMode(HSB, 360, 255, 255, 255);
@@ -31,6 +40,27 @@ void prepare(XML xml)
   prepareAnalysis(xml);
   
   rotationSpeed = xml.getFloat("rotationSpeed", 1);
+  
+  mode = xml.getInt("mode", 1);
+  
+  switch (mode)
+  {
+    default:
+      arcShineAlpha = 0;
+      arcInnerAlpha = 15;
+      backgroundClearAlpha = 50;
+      decorationActive = true;
+      vibrationFactor = 1;
+      break;
+    
+    case 2:
+      arcShineAlpha = 5;
+      arcInnerAlpha = 15;
+      backgroundClearAlpha = 10;
+      decorationActive = false;
+      vibrationFactor = 0;
+      break;
+  }
 
   /*
   int extents = min(width, height);
@@ -49,17 +79,22 @@ void prepare(XML xml)
   */
   rotationAngle = 0;
 
-  //background(50);
-
-  background(50);
-  fill(0, 50);
-  noStroke();
-  for (int i = 0; i < 10; i++)
-    rect(0, 0, width, height);
+  newSong = true; 
 }
 
 void executeDraw()
 {
+  if (newSong)
+  {
+    background(50);
+    fill(0, 50);
+    noStroke();
+    for (int i = 0; i < 10; i++)
+      rect(0, 0, width, height);
+      
+    newSong = false;
+  }
+  
   rotationAngle += 0.03 * rotationSpeed;
 
   resetBackground();
@@ -68,12 +103,13 @@ void executeDraw()
 
   smoothedRms *= 0.9;
   smoothedRms = max(smoothedRms, rms);
-  scale = (1 + smoothedRms) * scaling;
+  scale = (1 + smoothedRms * vibrationFactor) * scaling;
 
   for (ChannelInfo channel : channels)
     channel.update();
 
-  drawDecoration();
+  if (decorationActive)
+    drawDecoration();
 
   for (ChannelInfo channel : channels)
   {
@@ -92,7 +128,7 @@ void executeDraw()
 
 void resetBackground()
 {
-  fill(0, 50);
+  fill(0, backgroundClearAlpha);
   noStroke();
   rect(0, 0, width, height);
   //background(0);
@@ -234,7 +270,14 @@ class InstrumentChannelInfo
   {
     color c = getColor((float)instrument.counter / (usedInstruments.size()-1));
     stroke(c, 255);
-    fill(c, 15);
+    if (arcInnerAlpha > 0)
+    {
+      fill(c, arcInnerAlpha);
+    }
+    else
+    {
+      noFill();
+    }
     strokeCap(NORMAL);
     
     float angle = rotationAngle + ((float)channel.index/channels.length) * (PI*2);
@@ -267,6 +310,9 @@ class InstrumentChannelInfo
       line(width/2, height/2, prevPosRotArr[0].x, prevPosRotArr[0].y);
     */
     
+    PVector firstDelta;
+    PVector lastDelta;
+    
     int lastFrom = 0;
     int lastTo = 0;
     PVector lastDrawn = null;
@@ -298,20 +344,7 @@ class InstrumentChannelInfo
       }
       else if (lastDrawn != null)
       {
-        /*
-        lastDrawn.normalize();
-        lastDrawn.mult(satelliteDistanceInner*scale);
-        vertex(center.x + lastDrawn.x, center.y + lastDrawn.y);
-        */
-        for (int k = lastTo; k >= lastFrom; k--)
-        {
-          delta = prevPosRotArrCenter[k];
-          PVector copy = new PVector(delta.x, delta.y);
-          float len = copy.mag();
-          copy.mult((len*scale)/len);
-          vertex(center.x + copy.x, center.y + copy.y);
-        }
-        endShape(CLOSE);
+        closeShape(c, center, lastFrom, lastTo);
         lastDrawn = null;
       }
       /*
@@ -322,11 +355,11 @@ class InstrumentChannelInfo
     }
     if (lastDrawn != null)
     {
+      closeShape(c, center, lastFrom, lastTo);
       /*
       lastDrawn.normalize();
       lastDrawn.mult(satelliteDistanceInner*scale);
       vertex(center.x + lastDrawn.x, center.y + lastDrawn.y);
-      */
       for (int k = lastTo; k >= lastFrom; k--)
       {
         PVector delta = prevPosRotArrCenter[k];
@@ -336,6 +369,7 @@ class InstrumentChannelInfo
         vertex(center.x + copy.x, center.y + copy.y);
       }
       endShape(CLOSE);
+      */
       lastDrawn = null;
     }
     
@@ -351,5 +385,54 @@ class InstrumentChannelInfo
     float y = (1 - value) * height;
     rect(leftX, y - blockHeight / 2, rectWidth, blockHeight);
     */
+  }
+  
+  void closeShape(color c, PVector center, int lastFrom, int lastTo)
+  {
+    for (int k = lastTo; k >= lastFrom; k--)
+    {
+      PVector delta = prevPosRotArrCenter[k];
+      PVector copy = new PVector(delta.x, delta.y);
+      float len = copy.mag();
+      copy.mult((len*scale)/len);
+      vertex(center.x + copy.x, center.y + copy.y);
+    }
+    endShape(CLOSE);
+    
+    if (arcShineAlpha > 0)
+    {
+      noStroke();
+      //stroke(c, 100);
+      fill(c, arcShineAlpha);
+      
+      beginShape();
+      for (int k = lastTo; k >= lastFrom; k--)
+      {
+        PVector delta = prevPosRotArrCenter[k];
+        PVector copy = new PVector(delta.x, delta.y);
+        float len = copy.mag();
+        copy.mult((len*scale)/len);
+        vertex(center.x + copy.x, center.y + copy.y);
+      }
+      PVector fromCopy = prevPosRotArrCenter[lastFrom];
+      PVector toCopy = prevPosRotArrCenter[lastTo];
+      fromCopy.normalize();
+      toCopy.normalize();
+      float extraDistance = width + height;
+      vertex(center.x, center.y);
+      vertex(center.x + fromCopy.x * extraDistance, center.y + fromCopy.y * extraDistance);
+      vertex(center.x + toCopy.x * extraDistance, center.y + toCopy.y * extraDistance);
+      endShape(CLOSE);
+    }
+    
+    stroke(c, 255);
+    if (arcInnerAlpha > 0)
+    {
+      fill(c, arcInnerAlpha);
+    }
+    else
+    {
+      noFill();
+    }
   }
 }
