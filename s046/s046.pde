@@ -24,8 +24,8 @@ boolean newSong;
 void setup()
 {
   //size(displayWidth, displayHeight);
-  size(600, 600);
-  //fullScreen();
+  //size(600, 600);
+  fullScreen();
   noCursor();
 
   //colorMode(HSB, 360, 255, 255, 255);

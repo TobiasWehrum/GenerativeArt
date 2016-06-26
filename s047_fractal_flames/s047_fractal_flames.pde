@@ -5,7 +5,7 @@ String gradientFilename = "gradientHue240-480.png";
 color[] gradient;
 
 int[] variationIndex = new int[8];
-int variationCount = 5;
+int variationCount = 15;
 int[][] density;
 float[][] densityR;
 float[][] densityG;
@@ -422,6 +422,16 @@ Variation getVariation(int i)
     case 2: return new Variation2Spherical();
     case 3: return new Variation3Swirl();
     case 4: return new Variation4Horseshoe();
+    case 5: return new Variation5Polar();
+    case 6: return new Variation6Handkerchief();
+    case 7: return new Variation7Heart();
+    case 8: return new Variation8Disc();
+    case 9: return new Variation9Spiral();
+    case 10: return new Variation10Hyperbolic();
+    case 11: return new Variation18Exponential();
+    case 12: return new Variation19Power();
+    case 13: return new Variation21Rings();
+    case 14: return new Variation22Fan();
     default: throw new RuntimeException(i + " is out of range.");
   }
 }
@@ -530,12 +540,12 @@ abstract class Variation
   
   float theta(PVector in) // θ
   {
-    return atan(in.x/in.y);
+    return atan2(in.x, in.y);
   }
   
   float phi(PVector in) // φ
   {
-    return atan(in.x/in.y);
+    return atan2(in.y, in.x);
   }
   
   float omega() // Ω
@@ -551,6 +561,11 @@ abstract class Variation
   float psi() // Ψ
   {
     return random(0, 1);
+  }
+  
+  float mod(float value)
+  {
+    return (abs(value) % 1) * ((value > 0) ? 1 : -1);
   }
   
   float trunc(float value)
@@ -619,5 +634,147 @@ class Variation4Horseshoe extends Variation
     float invr = (1/r(in));
     out.x = invr * (in.x-in.y) * (in.x+in.y);
     out.y = invr * 2 * in.x * in.y;
+  }
+}
+
+class Variation5Polar extends Variation
+{
+  public String getVariationName() { return "Polar"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    out.x = theta(in)/PI;
+    out.y = r(in)-1;
+  }
+}
+
+class Variation6Handkerchief extends Variation
+{
+  public String getVariationName() { return "Handkerchief"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float r = r(in);
+    float theta = theta(in);
+    out.x = r * sin(theta + r);
+    out.y = r * cos(theta - r);
+  }
+}
+
+class Variation7Heart extends Variation
+{
+  public String getVariationName() { return "Heart"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float r = r(in);
+    float thetaR = r * theta(in);
+    out.x = r * sin(thetaR);
+    out.y = r * -cos(thetaR);
+  }
+}
+
+class Variation8Disc extends Variation
+{
+  public String getVariationName() { return "Disc"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float piR = r(in) * PI;
+    float thetaByPi = theta(in)/PI;
+    out.x = thetaByPi * sin(piR);
+    out.y = thetaByPi * cos(piR);
+  }
+}
+
+class Variation9Spiral extends Variation
+{
+  public String getVariationName() { return "Spiral"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float r = r(in);
+    float d1r = 1/r;
+    float theta = theta(in);
+    out.x = d1r * (cos(theta) + sin(r));
+    out.y = d1r * (sin(theta) - cos(r));
+  }
+}
+
+class Variation10Hyperbolic extends Variation
+{
+  public String getVariationName() { return "Hyperbolic"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float r = r(in);
+    float theta = theta(in);
+    out.x = sin(theta)/r;
+    out.y = r * cos(theta);
+  }
+}
+
+class Variation18Exponential extends Variation
+{
+  public String getVariationName() { return "Exponential"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float expx1 = exp(in.x - 1);
+    out.x = expx1 * cos(PI*in.y);
+    out.y = expx1 * sin(PI*in.y);
+  }
+}
+
+class Variation19Power extends Variation
+{
+  public String getVariationName() { return "Power"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float theta = theta(in);
+    float costheta = cos(theta);
+    float sintheta = sin(theta);
+    float mult = pow(r(in), sintheta);
+    out.x = mult * costheta;
+    out.y = mult * sintheta;
+  }
+}
+
+class Variation21Rings extends Variation
+{
+  public String getVariationName() { return "Rings"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float r = r(in);
+    float theta = theta(in);
+    float c = params.c;
+    float c2 = c*c;
+    float mult = (r + c2) * mod(2*c2) - c2 + r*(1-c2);
+    out.x = mult * cos(theta);
+    out.y = mult * sin(theta);
+  }
+}
+
+class Variation22Fan extends Variation
+{
+  public String getVariationName() { return "Fan"; }
+  
+  public void calculate(PVector in, PVector out, FunctionWithVariation params)
+  {
+    float c = params.c;
+    float f = params.f;
+    float c2 = c*c;
+    float t = PI*c2;
+    float mirror = 1;
+    float theta = theta(in);
+    if ((theta+f)*(mod(t)) <= t/2)
+      mirror = -1;
+      
+    float r = r(in);
+    float mult = (r + c2) * mod(2*c2) - c2 + r*(1-c2);
+    out.x = r * cos(theta - t/2 * mirror);
+    out.y = r * sin(theta - t/2 * mirror);
   }
 }
