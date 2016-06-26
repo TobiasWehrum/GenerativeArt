@@ -1,5 +1,6 @@
 boolean pause;
-int steps = 300;
+int steps = 5;
+int iterationStepsPerDraw = 50000;
 
 String gradientFilename = "gradientHue240-480.png";
 color[] gradient;
@@ -29,8 +30,9 @@ ArrayList<Function> functions = new ArrayList<Function>();
 
 void setup()
 {
-  size(768, 768, P2D);
-  blendMode(ADD);
+  size(768, 768);
+  //fullScreen();
+  //blendMode(ADD);
   //colorMode(HSB, 360, 100, 100, 255);
 
   log10 = log(10);
@@ -131,7 +133,7 @@ void keyPressed()
     case 'k': variationIndexMove(7, -1); break;
     case 'y': switchA = !switchA; println("switchA: " + switchA); break;
     case 'x': switchB = !switchB; println("switchB: " + switchB); break;
-    case ' ': saveFrame("screenshot-######.png"); break;
+    case ' ': saveFrame("screenshot-######.png"); print("Screenshot saved!"); break;
     case 'c': symmetry = ((symmetry + 1) % symmetryCount); println("Symmetry: " + symmetry); break;
   }
 }
@@ -176,7 +178,7 @@ void draw()
   if (pause)
     return;
   
-  for (int i = 0; i < 100000; i++)
+  for (int i = 0; i < iterationStepsPerDraw; i++)
   {
     iterate(1);
     
@@ -224,8 +226,11 @@ void draw()
 
 void plot(float posX, float posY, float drawCol)
 {
-  int x = floor((posX+1)*(width/2));
-  int y = floor((posY+1)*(height/2));
+  float centerX = width/2f;
+  float centerY = height/2f;
+  float smallerSide = min(width, height);
+  int x = floor(centerX+posX*(smallerSide/2));
+  int y = floor(centerY+posY*(smallerSide/2));
   
   if ((x < 0) || (x >= width) || (y < 0) || (y >= height))
     return;
@@ -259,9 +264,9 @@ void render()
   
   int maxPow = ceil(getLog10(maxDensity));
   
-  for (int x = 0; x < width; x++)
+  for (int y = 0; y < height; y++)
   {
-    for (int y = 0; y < height; y++)
+    for (int x = 0; x < width; x++)
     {
       //float value = (float)density[x][y] / maxDensity;
       int strength = density[x][y];
