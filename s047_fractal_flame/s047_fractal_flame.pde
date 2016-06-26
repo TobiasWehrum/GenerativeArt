@@ -1,17 +1,25 @@
 boolean pause;
 int steps = 300;
 
+String gradientFilename = "gradientHue240-480.png";
+color[] gradient;
+
 int[] variationIndex = new int[8];
 int variationCount = 5;
 int[][] density;
+float[][] densityR;
+float[][] densityG;
+float[][] densityB;
 int maxDensity;
 
+float col;
 PVector position = new PVector();
 PVector out = new PVector();
 PVector drawPosition = new PVector();
 Function finalTransform = null;
 
 float log10;
+ArrayList<Float> logTable = new ArrayList<Float>();
 ArrayList<Float> log10table = new ArrayList<Float>();
 ArrayList<Integer> pow10table = new ArrayList<Integer>();
 
@@ -25,6 +33,7 @@ void setup()
 
   log10 = log(10);
   
+  /*
   int power = ceil(getLog10(9999));
   checkGetLoggedMapValue(1, power);
   checkGetLoggedMapValue(5, power);
@@ -35,6 +44,9 @@ void setup()
   checkGetLoggedMapValue(5500, power);
   checkGetLoggedMapValue(8500, power);
   checkGetLoggedMapValue(9999, power);
+  */
+  
+  gradient = loadGradient(gradientFilename);
   
   if (palettes == null)
   {
@@ -81,8 +93,12 @@ void reset(boolean keepPalette)
   
   position.x = random(-1, 1);
   position.y = random(-1, 1);
+  col = random(0, 1);
   
   density = new int[width][height];
+  densityR = new float[width][height];
+  densityG = new float[width][height];
+  densityB = new float[width][height];
   maxDensity = 0;
   
   iterate(20);
@@ -93,7 +109,6 @@ void reset(boolean keepPalette)
 
 void keyPressed()
 {
-  println(key);
   switch (key)
   {
     case 'q': variationIndexMove(0, 1); break;
@@ -112,6 +127,7 @@ void keyPressed()
     case 'j': variationIndexMove(6, -1); break;
     case 'i': variationIndexMove(7, 1); break;
     case 'k': variationIndexMove(7, -1); break;
+    case 'y': switchA = !switchA; println("switchA: " + switchA); break;
   }
 }
 
@@ -158,14 +174,18 @@ void draw()
   for (int i = 0; i < 100000; i++)
   {
     iterate(1);
+    
+    float drawCol;
     if (finalTransform != null)
     {
       finalTransform.calculate(position, drawPosition);
+      drawCol = (col + finalTransform.col) / 2;
     }
     else
     {
       drawPosition.x = position.x;
       drawPosition.y = position.y;
+      drawCol = col;
     }
     
     int x = floor((drawPosition.x+1)*(width/2));
@@ -180,10 +200,20 @@ void draw()
     
     if (value > maxDensity)
       maxDensity = value;
+
+    color drawColor = getColor(gradient, drawCol);
+    densityR[x][y] += red(drawColor)/255;
+    densityG[x][y] += blue(drawColor)/255;
+    densityB[x][y] += green(drawColor)/255;
+    //densityR[x][y] = (densityR[x][y]+red(drawColor)/255)/2;
+    //densityG[x][y] = (densityG[x][y]+blue(drawColor)/255)/2;
+    //densityB[x][y] = (densityB[x][y]+green(drawColor)/255)/2;
   }
   
   render();
 }
+
+boolean switchA = true;
 
 void render()
 {
@@ -206,10 +236,30 @@ void render()
       }
       else
       {
-        value = getLogMappedValue(strength, maxPow);
+        //value = getLogMappedValue(strength, maxPow);
+        if (switchA)
+        {
+          value = getLogMappedValue(strength, maxPow);
+        }
+        else
+        {
+          value = strength * getLog(maxDensity) / maxDensity;
+        }
+        //value = strength;
       }
-      //if (strength > 0) strength = 1;
-      pixels[i++] = color(value * 255);
+      
+      float multiplier = getLog(strength)/strength * value;
+      float red = densityR[x][y] * multiplier;
+      float green = densityB[x][y] * multiplier;
+      float blue = densityG[x][y] * multiplier;
+      //float red = densityR[x][y];
+      //float green = densityB[x][y];
+      //float blue = densityG[x][y];
+      pixels[i++] = color(red * 255, green * 255, blue * 255);
+
+      //pixels[i++] = color(value * 255);
+      //color c = getColor(gradient, value);
+      //pixels[i++] = c;
     }
   }
   updatePixels();
@@ -238,6 +288,7 @@ void iterate(int count)
     f.calculate(position, out);
     position.x = out.x;
     position.y = out.y;
+    col = (col + f.col) / 2;
   }
 }
 
@@ -253,6 +304,7 @@ void addFractalFlame(int functionCount, ArrayList<Variation> variations)
   for (int i = 0; i < functionCount; i++)
   {
     FunctionWithVariation function = getRandomFunctionWithVariation();
+    function.col = random(0, 1);
     //function.setPostTransform(getRandomFunctionWithVariation());
     if (variations.size() == 1)
     {
@@ -280,11 +332,21 @@ FunctionWithVariation getRandomFunctionWithVariation()
   return new FunctionWithVariation(a, b, c, d, e, f);
 }
 
+float getLog(int value)
+{
+  while (logTable.size() <= value)
+  {
+    logTable.add(log(log10table.size()));
+  }
+  
+  return logTable.get(value);
+}
+
 float getLog10(int value)
 {
   while (log10table.size() <= value)
   {
-    log10table.add(log(log10table.size()) / log10);
+    log10table.add(getLog(log10table.size()) / log10);
   }
   
   return log10table.get(value);
@@ -318,6 +380,8 @@ Variation getVariation(int i)
 
 abstract class Function
 {
+  public float col;
+  
   public abstract void calculate(PVector in, PVector out);
 }
 
