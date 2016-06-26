@@ -11,6 +11,8 @@ float[][] densityR;
 float[][] densityG;
 float[][] densityB;
 int maxDensity;
+int symmetry;
+int symmetryCount = 8; // no, vertical, horizontal, 180, 120, 90, 72, 60
 
 float col;
 PVector position = new PVector();
@@ -128,6 +130,9 @@ void keyPressed()
     case 'i': variationIndexMove(7, 1); break;
     case 'k': variationIndexMove(7, -1); break;
     case 'y': switchA = !switchA; println("switchA: " + switchA); break;
+    case 'x': switchB = !switchB; println("switchB: " + switchB); break;
+    case ' ': saveFrame("screenshot-######.png"); break;
+    case 'c': symmetry = ((symmetry + 1) % symmetryCount); println("Symmetry: " + symmetry); break;
   }
 }
 
@@ -188,35 +193,66 @@ void draw()
       drawCol = col;
     }
     
-    int x = floor((drawPosition.x+1)*(width/2));
-    int y = floor((drawPosition.y+1)*(height/2));
+    plot(drawPosition.x, drawPosition.y, drawCol);
     
-    if ((x < 0) || (x >= width) || (y < 0) || (y >= height))
-      continue;
-      
-    int value = density[x][y];
-    value++;
-    density[x][y] = value;
-    
-    if (value > maxDensity)
-      maxDensity = value;
-
-    color drawColor = getColor(gradient, drawCol);
-    densityR[x][y] += red(drawColor)/255;
-    densityG[x][y] += blue(drawColor)/255;
-    densityB[x][y] += green(drawColor)/255;
-    //densityR[x][y] = (densityR[x][y]+red(drawColor)/255)/2;
-    //densityG[x][y] = (densityG[x][y]+blue(drawColor)/255)/2;
-    //densityB[x][y] = (densityB[x][y]+green(drawColor)/255)/2;
+    // symmetry: no, vertical, horizontal, 180, 120, 90, 72, 60
+    if (symmetry > 0)
+    {
+      if (symmetry == 1)
+      {
+        plot(-drawPosition.x, drawPosition.y, drawCol);
+      }
+      else if (symmetry == 2)
+      {
+        plot(drawPosition.x, -drawPosition.y, drawCol);
+      }
+      else
+      {
+        int rotationCount = symmetry - 2;
+        float delta = PI*2 / (rotationCount+1);
+        for (int j = 0; j < rotationCount; j++)
+        {
+          drawPosition.rotate(delta);
+          plot(drawPosition.x, drawPosition.y, drawCol);
+        }
+      }
+    }
   }
   
   render();
 }
 
+void plot(float posX, float posY, float drawCol)
+{
+  int x = floor((posX+1)*(width/2));
+  int y = floor((posY+1)*(height/2));
+  
+  if ((x < 0) || (x >= width) || (y < 0) || (y >= height))
+    return;
+    
+  int value = density[x][y];
+  value++;
+  density[x][y] = value;
+  
+  if (value > maxDensity)
+    maxDensity = value;
+
+  color drawColor = getColor(gradient, drawCol);
+  densityR[x][y] += red(drawColor)/255;
+  densityG[x][y] += blue(drawColor)/255;
+  densityB[x][y] += green(drawColor)/255;
+  //densityR[x][y] = (densityR[x][y]+red(drawColor)/255)/2;
+  //densityG[x][y] = (densityG[x][y]+blue(drawColor)/255)/2;
+  //densityB[x][y] = (densityB[x][y]+green(drawColor)/255)/2;
+}
+
 boolean switchA = true;
+boolean switchB = true;
 
 void render()
 {
+  //float gammaAdjust = 4;
+  
   stroke(255);
   noFill();
   int i = 0;
@@ -239,7 +275,8 @@ void render()
         //value = getLogMappedValue(strength, maxPow);
         if (switchA)
         {
-          value = getLogMappedValue(strength, maxPow);
+          //value = getLogMappedValue(strength, maxPow);
+          value = getLog(strength)/strength;
         }
         else
         {
@@ -248,10 +285,21 @@ void render()
         //value = strength;
       }
       
-      float multiplier = getLog(strength)/strength * value;
+      //float multiplier = getLog(strength)/strength;
+      float multiplier = value;
       float red = densityR[x][y] * multiplier;
       float green = densityB[x][y] * multiplier;
       float blue = densityG[x][y] * multiplier;
+      
+      /*
+      if (switchB)
+      {
+        red = pow(red, 1/gammaAdjust);
+        green = pow(green, 1/gammaAdjust);
+        blue = pow(blue, 1/gammaAdjust);
+      }
+      */
+      
       //float red = densityR[x][y];
       //float green = densityB[x][y];
       //float blue = densityG[x][y];
