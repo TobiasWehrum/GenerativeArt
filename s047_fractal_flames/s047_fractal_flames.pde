@@ -2,7 +2,8 @@ boolean pause;
 int steps = 5;
 int iterationStepsPerDraw = 50000;
 
-String gradientFilename = "gradientHue240-480.png";
+boolean useGradient = false;
+String gradientFilename = "gradientBlue1.png"; //"gradientHue240-480.png";
 color[] gradient;
 
 int[] variationIndex = new int[8];
@@ -278,8 +279,9 @@ void plot(float posX, float posY, float drawCol)
   if (value > maxDensity)
     maxDensity = value;
 
-  //color drawColor = getColor(gradient, drawCol);
-  color drawColor = currentPalette.getPercent(drawCol);
+  color drawColor = useGradient
+                      ? getColor(gradient, drawCol)
+                      : currentPalette.getPercent(drawCol);
   densityR[x][y] += red(drawColor)/255;
   densityG[x][y] += blue(drawColor)/255;
   densityB[x][y] += green(drawColor)/255;
