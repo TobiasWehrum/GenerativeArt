@@ -1,3 +1,29 @@
+/*
+Copyright (c) 2016 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
+Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
+This notice shall be included in all copies or substantial portions of the Software.
+
+Controls:
+- Left-click to refresh.
+- Middle-click to randomize all settings.
+- Right-click to pause/continue.
+- Q/A, W/S, E/D, R/F, T/G, Z/H, U/J, I/K to selection variations.
+- Y to switch between color correction settings.
+- C to switch symmetry settings.
+- V to lock/unlock color palette.
+- Space to make a screenshot.
+
+Color schemes:
+- "(◕ ” ◕)" by sugar!: http://www.colourlovers.com/palette/848743
+- "vivacious" by plch: http://www.colourlovers.com/palette/557539/vivacious
+- "Sweet Lolly" by nekoyo: http://www.colourlovers.com/palette/56122/Sweet_Lolly
+- "Pop Is Everything" by jen_savage: http://www.colourlovers.com/palette/7315/Pop_Is_Everything
+- "it's raining love" by tvr: http://www.colourlovers.com/palette/845564/its_raining_love
+- "A Dream in Color" by madmod001: http://www.colourlovers.com/palette/871636/A_Dream_in_Color
+- "Influenza" by Miaka: http://www.colourlovers.com/palette/301154/Influenza
+- "Ocean Five" by DESIGNJUNKEE: http://www.colourlovers.com/palette/1473/Ocean_Five
+*/
+
 boolean pause;
 int steps = 5;
 int iterationStepsPerDraw = 50000;

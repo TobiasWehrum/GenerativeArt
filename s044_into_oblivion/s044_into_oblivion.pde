@@ -1,3 +1,20 @@
+/*
+Copyright (c) 2016 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
+Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
+This notice shall be included in all copies or substantial portions of the Software.
+
+Controls:
+- Left/right to go back/forward in the current track.
+- Up to restart.
+- Down to pause/unpause.
+- Space to load a new configuration.
+
+Color schemes:
+- "Hymn For My Soul" by faded jeans: http://www.colourlovers.com/palette/81885/Hymn_For_My_Soul
+- "s e x ' n . r o l l " by tvr: http://www.colourlovers.com/palette/401946/s_e_x_n_._r_o_l_l
+- "Pop Is Everything" by jen_savage: http://www.colourlovers.com/palette/7315/Pop_Is_Everything
+*/
+
 import ddf.minim.*;
 import ddf.minim.analysis.*;
 
