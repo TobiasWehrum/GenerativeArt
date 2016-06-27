@@ -1,4 +1,4 @@
-String paletteFileName = "selected";
+String paletteFileName = "selected2";
 ArrayList<Palette> palettes;
 Palette currentPalette;
 
@@ -14,6 +14,23 @@ class Palette
     colors.add(c);
     widths.add(w);
     totalWidth += w;
+  }
+  
+  color getPercent(float value)
+  {
+    if (value <= 0)
+      return colors.get(0);
+      
+    if (value >= 1)
+      return colors.get(colors.size()-1);
+      
+    int lowerIndex = floor(value * (colors.size() - 1));
+    float percent = value * (colors.size() - 1) - lowerIndex;
+    
+    color c1 = colors.get(lowerIndex);
+    color c2 = colors.get(lowerIndex+1);
+    
+    return lerpColor(c1, c2, percent);
   }
   
   color randomColor()
@@ -45,14 +62,15 @@ void loadPalettes()
   {
     Palette palette = new Palette();
     XML[] xcolors = child.getChild("colors").getChildren("hex");
-    String[] widths = child.getChild("colorWidths").getContent().split(",");
+    //String[] widths = child.getChild("colorWidths").getContent().split(",");
     String title = child.getChild("title").getContent();
     palette.name = title;//.substring(10, title.length()-10-3);
     int i = 0;
     for(XML xcolor : xcolors)
     {
       color c = unhex("FF" + xcolor.getContent());
-      float w = Float.parseFloat(widths[i]);
+      //float w = Float.parseFloat(widths[i]);
+      float w = 1;
       i++;
       palette.addColor(c, w);
     }

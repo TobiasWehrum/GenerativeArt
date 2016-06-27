@@ -14,6 +14,7 @@ float[][] densityB;
 int maxDensity;
 int symmetry;
 int symmetryCount = 8; // no, vertical, horizontal, 180, 120, 90, 72, 60
+boolean paletteLock = false;
 
 float col;
 PVector position = new PVector();
@@ -63,14 +64,14 @@ void setup()
     variationIndex[i] = -1;
   }
   
-  reset(false);
+  reset();
 }
 
-void reset(boolean keepPalette)
+void reset()
 {
   pause = false;
 
-  if (!keepPalette)
+  if (!paletteLock)
   {
     selectPalette();
   }
@@ -91,6 +92,7 @@ void reset(boolean keepPalette)
     variations.add(variation);
     print(variation.getVariationName() + " ");
   }
+  println(" / Symmetry: " + symmetry + " / Palette: " + currentPalette.name);
   println();
   
   addFractalFlame(count, variations);
@@ -134,7 +136,8 @@ void keyPressed()
     case 'y': switchA = !switchA; println("switchA: " + switchA); break;
     case 'x': switchB = !switchB; println("switchB: " + switchB); break;
     case ' ': saveFrame("screenshot-######.png"); print("Screenshot saved!"); break;
-    case 'c': symmetry = ((symmetry + 1) % symmetryCount); println("Symmetry: " + symmetry); break;
+    case 'c': symmetry = ((symmetry + 1) % symmetryCount); reset(); break;
+    case 'v': paletteLock = !paletteLock; println("Palette locked: " + paletteLock); break;
   }
 }
 
@@ -149,23 +152,56 @@ public void variationIndexMove(int i, int delta)
   {
     variationIndex[i] = variationCount - 1;
   }
-  reset(false);
+  reset();
 }
 
 void mouseClicked()
 {
   if (mouseButton == LEFT)
   {
-    reset(false);
+    reset();
   }
   else if (mouseButton == CENTER)
   {
-    pause = false;
-    for (int i = 0; i < steps; i++)
+    for (int i = 0; i < variationIndex.length; i++)
     {
-      draw();
+      variationIndex[i] = -1;
     }
-    pause = true;
+    symmetry = 0;
+    
+    variationIndex[0] = floor(random(0, variationCount));
+    for (int i = 1; i < variationIndex.length; i++)
+    {
+      if (random(1) < 0.5)
+        break;
+        
+      variationIndex[1] = floor(random(0, variationCount));
+    }
+    
+    if (random(1) > 0.66)
+    {
+      if (random(1) > 0.5)
+      {
+        float v = random(1);
+        if (v > 0.66)
+        {
+          symmetry = 1;
+        }
+        else if (v > 0.33)
+        {
+          symmetry = 2;
+        }
+        else
+        {
+          symmetry = 3;
+        }
+      }
+      else
+      {
+        symmetry = floor(random(4, symmetryCount));
+      }
+    }
+    reset();
   }
   else if (mouseButton == RIGHT)
   {
@@ -242,7 +278,8 @@ void plot(float posX, float posY, float drawCol)
   if (value > maxDensity)
     maxDensity = value;
 
-  color drawColor = getColor(gradient, drawCol);
+  //color drawColor = getColor(gradient, drawCol);
+  color drawColor = currentPalette.getPercent(drawCol);
   densityR[x][y] += red(drawColor)/255;
   densityG[x][y] += blue(drawColor)/255;
   densityB[x][y] += green(drawColor)/255;
