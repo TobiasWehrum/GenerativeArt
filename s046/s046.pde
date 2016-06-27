@@ -1,3 +1,18 @@
+/*
+Copyright (c) 2016 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
+Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
+This notice shall be included in all copies or substantial portions of the Software.
+
+Controls:
+- Left/right to go back/forward in the current track.
+- Up to restart.
+- Down to pause/unpause.
+- Space to load a new configuration.
+
+Color scheme:
+- "Pop Is Everything" by jen_savage: http://www.colourlovers.com/palette/7315/Pop_Is_Everything
+*/
+
 int decorationCircleOffset = 10;
 
 float extents;
@@ -452,12 +467,12 @@ class InstrumentChannelInfo
         copy.mult((len*scale)/len);
         vertex(center.x + copy.x, center.y + copy.y);
       }
-      PVector fromCopy = prevPosRotArrCenter[lastFrom];
-      PVector toCopy = prevPosRotArrCenter[lastTo];
+      PVector fromCopy = new PVector(prevPosRotArrCenter[lastFrom].x, prevPosRotArrCenter[lastFrom].y);
+      PVector toCopy = new PVector(prevPosRotArrCenter[lastTo].x, prevPosRotArrCenter[lastTo].y);
       fromCopy.normalize();
       toCopy.normalize();
       float extraDistance = width + height;
-      vertex(center.x, center.y);
+      //vertex(center.x, center.y);
       vertex(center.x + fromCopy.x * extraDistance, center.y + fromCopy.y * extraDistance);
       vertex(center.x + toCopy.x * extraDistance, center.y + toCopy.y * extraDistance);
       endShape(CLOSE);
