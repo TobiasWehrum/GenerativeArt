@@ -1,7 +1,3 @@
-String paletteFileName = "selected2";
-ArrayList<Palette> palettes;
-Palette currentPalette;
-
 class Palette
 {
   ArrayList<Integer> colors = new ArrayList<Integer>();
@@ -54,33 +50,36 @@ class Palette
   }
 }
 
-void loadPalettes()
+ArrayList<Palette> loadPalettes(String filename, boolean useWidths)
 {
-  XML xml = loadXML(paletteFileName + ".xml");
+  ArrayList<Palette> palettes = new ArrayList<Palette>();
+
+  XML xml = loadXML(filename + ".xml");
   XML[] children = xml.getChildren("palette");
   for (XML child : children)
   {
     Palette palette = new Palette();
     XML[] xcolors = child.getChild("colors").getChildren("hex");
-    //String[] widths = child.getChild("colorWidths").getContent().split(",");
+    String[] widths = null;
+    if (useWidths)
+      widths = child.getChild("colorWidths").getContent().split(",");
     String title = child.getChild("title").getContent();
     palette.name = title;//.substring(10, title.length()-10-3);
     int i = 0;
     for(XML xcolor : xcolors)
     {
       color c = unhex("FF" + xcolor.getContent());
-      //float w = Float.parseFloat(widths[i]);
+      
       float w = 1;
+      if (useWidths)
+        w = Float.parseFloat(widths[i]);
+        
       i++;
       palette.addColor(c, w);
     }
     
     palettes.add(palette);
-  } 
-}
-
-void selectPalette()
-{
-  int paletteIndex = (int)random(palettes.size());
-  currentPalette = palettes.get(paletteIndex);
+  }
+  
+  return palettes;
 }
