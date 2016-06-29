@@ -5,8 +5,9 @@ This notice shall be included in all copies or substantial portions of the Softw
 
 Controls:
 - Left-click to refresh.
-- Middle-click to ???.
-- Right-click to ???.
+
+This is heavily inspired by https://www.flickr.com/photos/gunderson/3672408946/in/set-72157604969557101 - to be exact,
+I tried to get as close as I could, with the goal of learning how to make more professionally looking generative art.
 
 Color schemes:
 - "(◕ ” ◕)" by sugar!: http://www.colourlovers.com/palette/848743
@@ -74,7 +75,7 @@ void reset()
   currentPalette.addColor(color(136, 52, 114), 1);
   
   color primaryColor = currentPalette.randomColor();
-  float primaryColorChance = 0;
+  float primaryColorChance = random(1);
   
   colorPatchList.clear();
   for (int j = 0; j < 2; j++)
@@ -89,8 +90,19 @@ void reset()
       //color c = getColor(gradient, random(0, 1));
       if (random(1) < primaryColorChance)
         c = primaryColor;
-      colorPatches.add(new ColorPatch(random(0, pg.width), random(0, pg.height), c));
+      colorPatches.add(new ColorPatch(random(0, pg.width), random(0, pg.height), c, Float.POSITIVE_INFINITY));
     }
+    
+    /*
+    for (int i = 0; i < colorPatchCount; i++)
+    {
+      color c = currentPalette.randomColor();
+      //color c = getColor(gradient, random(0, 1));
+      if (random(1) < primaryColorChance)
+        c = primaryColor;
+      colorPatches.add(new ColorPatch(random(0, pg.width), random(0, pg.height), c, random(width/4, width/3)));
+    }
+    */
   }
   
   noiseSeed((int)random(0, 1000000));
@@ -140,12 +152,13 @@ void render()
   
   float colorOffset = 70;
   int count = (int)(0.3*pg.width);
+  float power = random(1, 3);
   for (int i = 0; i < count; i++)
   {
-    float percent = (float)i/count;
+    float percent = pow((float)i/count, power);
     PVector position = new PVector(random(0, pg.width), random(0, pg.height));
     float angle = random(0, PI*2);
-    float angleSpeed = random(-1, 1) * PI / 60;
+    float angleSpeed = random(-1, 1) * PI / 80;
     float stepDistance = 15;
     
     ArrayList<ColorPatch> colorPatches = colorPatchList.get((int)(random(colorPatchList.size())));
@@ -253,7 +266,7 @@ color getClosestColor(float x, float y, ArrayList<ColorPatch> colorPatches)
   for (ColorPatch patch : colorPatches)
   {
     float distanceSq = patch.distanceSq(x, y);
-    if (distanceSq < closestDistanceSq)
+    if ((distanceSq <= patch.maxRadius) && (distanceSq < closestDistanceSq))
     {
       closestDistanceSq = distanceSq;
       closestColorPatch = patch;
@@ -267,11 +280,13 @@ class ColorPatch
 {
   PVector position;
   color c;
+  float maxRadius;
   
-  ColorPatch(float x, float y, color c)
+  ColorPatch(float x, float y, color c, float maxRadius)
   {
     position = new PVector(x, y);
     this.c = c;
+    this.maxRadius = maxRadius;
   }
   
   public float distanceSq(float x, float y)
