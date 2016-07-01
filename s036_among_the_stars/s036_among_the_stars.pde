@@ -18,6 +18,7 @@ int mode;
 void setup()
 {
   size(768, 768, P3D);
+  //fullScreen(P2D);
   //colorMode(ADD);
   //noSmooth();
   stroke(255, 255, 255, 100);

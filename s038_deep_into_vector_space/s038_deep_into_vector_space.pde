@@ -9,6 +9,7 @@ Controls:
 - Right-click to pause/unpause.
 - A to refresh and finish a new painting with same color scheme.
 - S to refresh and finish a new painting with changed color scheme.
+- Space to take a screenshot.
 
 Color schemes:
 - "Hymn For My Soul" by faded jeans: http://www.colourlovers.com/palette/81885/Hymn_For_My_Soul
@@ -50,7 +51,8 @@ int mode = 0;
 
 void setup()
 {
-  size(768, 768, P2D);
+  //size(768, 768, P2D);
+  fullScreen(P2D);
   blendMode(ADD);
   //colorMode(HSB, 360, 100, 100, 255);
 
@@ -72,6 +74,10 @@ void keyPressed()
     pause = true;
   }
   if (key == ' ')
+  {
+    saveFrame("s038_deep_into_vector_space-#####.png");
+  }
+  if (key == 'p')
   {
     System.out.println(currentPalette.name);
   }

@@ -1,4 +1,4 @@
-/*
+ /*
 Copyright (c) 2016 Tobias Wehrum <Tobias.Wehrum@dragonlab.de>
 Distributed under the MIT License. (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
 This notice shall be included in all copies or substantial portions of the Software.
@@ -36,8 +36,8 @@ void setup()
   int originalHeight = 768;
   int desiredWidth = 768;
   int desiredHeight = 768;
-  size(768, 768, P2D);
-  //fullScreen(P2D);
+  //size(768, 768, P2D);
+  fullScreen(P2D);
   scale = min((float)desiredWidth / originalWidth, (float)desiredHeight / originalHeight);
   
   blendMode(ADD);
