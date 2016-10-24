@@ -33,6 +33,16 @@ void mouseClicked()
   }
 }
 
+void keyPressed()
+{
+  switch (key)
+  {
+    case ' ':
+      save("049_burrowers_" + frameCount + ".png");
+      break;
+  }
+}
+
 void reset()
 {
   noiseSeed(floor(random(0, 10000000)));
