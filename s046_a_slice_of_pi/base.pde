@@ -6,6 +6,8 @@ color[] gradient;
 
 int seekSkip = 5000;
 
+boolean manualPause = false;
+
 void selectXML()
 {
   mod.pause();
@@ -59,7 +61,10 @@ void reset()
   
   loading = false;
 
-  audioContinue();
+  background(0);
+
+  if (!manualPause)
+    audioContinue();
 }
 
 void keyPressed()
@@ -83,10 +88,12 @@ void keyPressed()
       if (isAudioPaused())
       {
         audioContinue();
+        manualPause = false;
       }
       else
       {
         audioPause();
+        manualPause = true;
       }
     }
     else if (key == 'i')

@@ -9,8 +9,21 @@ Controls:
 - Down to pause/unpause.
 - Space to load a new configuration.
 
-Color scheme:
+XML:
+- song: MOD file.
+- scaling: Amplitude vibration scaling.
+- rotationSpeed: Rotational speed.
+- lowerPitch: The pitch which should be shown as 0%.
+- upperPitch: The pithc which should be shown as 100%.
+- gradient: A gradient image file.
+- gradientReverse: true/false - should the gradient be inverted?
+
+Color scheme credits:
 - "Pop Is Everything" by jen_savage: http://www.colourlovers.com/palette/7315/Pop_Is_Everything
+
+Music credits:
+- chiptune, phantasmagoria, rsectro and zapped_out by 4mat
+- Rivendell by radix
 */
 
 int decorationCircleOffset = 10;
