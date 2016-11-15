@@ -42,8 +42,8 @@ float scale;
 
 void setup()
 {
-  size(768, 768);
-  //fullScreen();
+  //size(768, 768);
+  fullScreen();
   
   scale = (width+height)/(768.0*2);
   
@@ -84,6 +84,8 @@ void reset(boolean newColors)
 {
   if (newColors)
   {
+    int index = (int)random(0, gradientFilenames.length);
+    gradient = loadGradient(gradientFilenames[index]);
   }
   
   background(0);
@@ -121,7 +123,7 @@ void reset(boolean newColors)
   float outDistance = width+height;
   float castDistance = outDistance * 2;
   
-  int lineCount = (int)(200 * scale);
+  int lineCount = (int)(400 * scale);
   float offsetDistance = 240.0 / lineCount;
   float startAngle = random(0, TWO_PI);
   PVector startDirection = directionFromAngle(startAngle, 1f);
@@ -130,8 +132,12 @@ void reset(boolean newColors)
   startPosition.add(directionFromAngle(startAngle + PI, outDistance));
   startPosition.add(PVector.mult(offsetDelta, -lineCount/2));
  
+  ArrayList<PVector> previousPositions = new ArrayList<PVector>();
+  
   for (int i = 0; i < lineCount; i++)
   {
+    previousPositions.clear();
+    
     strokeWeight(1);
     stroke(getColor(i/(float)(lineCount-1)), 30);
     //fill(getColor(i/(float)(lineCount-1)), 5);
@@ -139,7 +145,7 @@ void reset(boolean newColors)
     PVector position = new PVector(startPosition.x, startPosition.y);
     PVector direction = new PVector(startDirection.x, startDirection.y);
     
-    int reflectionCounter = 300;
+    int reflectionCounter = 3000;
     boolean hit;
     boolean firstHit = false;
     /*
@@ -150,6 +156,8 @@ void reset(boolean newColors)
       vertex(startPosition.x, startPosition.y);
     }
     */
+    
+    //PVector prevFrom = null;
     do
     {
       //if (abs(direction.y) < 0.05) break;
@@ -173,7 +181,37 @@ void reset(boolean newColors)
       }
       //ellipse(position.x, position.y, 5, 5);
       //vertex(position.x, position.y);
+      
+      boolean done = false;
+      for (int j = max(0, previousPositions.size() - 10); j < previousPositions.size() - 1; j++)
+      {
+        float dist = PVector.dist(position, previousPositions.get(j));
+        if (dist <= 1.5)
+        {
+          done = true;
+          break;
+        }
+      }
+      
+      if (done)
+        break;
+      
       line(from.x, from.y, position.x, position.y);
+      
+      previousPositions.add(new PVector(position.x, position.y));
+      
+      /*
+      if (prevFrom != null)
+      {
+        beginShape();
+        vertex(position.x, position.y);
+        vertex(from.x, from.y);
+        vertex(prevFrom.x, prevFrom.y);
+        endShape(CLOSE);
+      }
+      */
+      
+      //prevFrom = from;
       
       reflectionCounter--;
     } while ((reflectionCounter > 0) && hit);
