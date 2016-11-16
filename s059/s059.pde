@@ -198,6 +198,18 @@ void reset(boolean newColors)
       
       line(from.x, from.y, position.x, position.y);
       
+      /*
+      float offsetStrength = 5;
+      float offset1 = random(-offsetStrength, offsetStrength);
+      float offset2 = random(-offsetStrength, offsetStrength);
+      float offset3 = random(-offsetStrength, offsetStrength);
+      float offset4 = random(-offsetStrength, offsetStrength);
+      line(from.x + offset1, from.y + offset2, position.x + offset3, position.y + offset4);
+      */
+      
+      //float radius = random(5, 10);
+      //ellipse(position.x, position.y, radius, radius);
+      
       previousPositions.add(new PVector(position.x, position.y));
       
       /*
